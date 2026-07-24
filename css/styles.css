@@ -184,6 +184,20 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 .bar { width: 100%; max-width: 34px; background: linear-gradient(to top, var(--accent), var(--accent2)); border-radius: 6px 6px 0 0; }
 .bar-lbl { font-size: .62rem; color: var(--muted); }
 
+/* Cumplimiento */
+.range-toggle { display: flex; gap: 8px; margin-bottom: 14px; }
+.range-toggle button { flex: 1; background: var(--card2); border: 1px solid var(--line); color: var(--muted); border-radius: 10px; padding: 8px; font-weight: 600; cursor: pointer; }
+.range-toggle button.active { background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; border-color: transparent; }
+.comp-block { margin-bottom: 16px; }
+.comp-block h4 { font-size: .9rem; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: baseline; }
+.comp-pct { font-size: .8rem; color: var(--accent2); font-weight: 700; }
+.bars.comp { height: 90px; gap: 3px; }
+.bars.comp .bar { max-width: none; border-radius: 4px 4px 0 0; }
+.bars.comp .bar.g { background: var(--green); }
+.bars.comp .bar.y { background: var(--yellow); }
+.bars.comp .bar.r { background: var(--red); }
+.bars.comp .bar.nd { background: var(--line); }
+
 .line-svg { width: 100%; height: 90px; }
 .line-svg circle { fill: var(--accent2); }
 .bw-legend { display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); margin-top: 6px; }

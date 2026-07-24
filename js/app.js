@@ -46,7 +46,18 @@ function load() {
 }
 function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 
-const todayStr = () => new Date().toISOString().slice(0, 10);
+// Fecha LOCAL (no UTC) para que el día se reinicie a tu medianoche
+function localDate(d) {
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+const todayStr = () => localDate(new Date());
+function lastNDates(n) {
+  const base = new Date(todayStr() + 'T00:00:00');
+  const arr = [];
+  for (let i = n - 1; i >= 0; i--) { const d = new Date(base); d.setDate(d.getDate() - i); arr.push(localDate(d)); }
+  return arr;
+}
 
 /* ---------- Helpers de datos ---------- */
 // Semana actual (cambia cada lunes aprox.)
@@ -377,10 +388,10 @@ function computeStreak() {
   if (!dl.length) return 0;
   const days = [...new Set(dl)].sort().reverse();
   let streak = 0;
-  let cursor = new Date(todayStr());
+  let cursor = new Date(todayStr() + 'T00:00:00');
   // Permite que la racha empiece hoy o ayer
   const has = ds => days.includes(ds);
-  const iso = dt => dt.toISOString().slice(0, 10);
+  const iso = dt => localDate(dt);
   if (!has(iso(cursor))) cursor.setDate(cursor.getDate() - 1);
   while (has(iso(cursor))) { streak++; cursor.setDate(cursor.getDate() - 1); }
   return streak;
@@ -391,6 +402,7 @@ function renderProgress() {
   $('#statSessions').textContent = sessions;
   $('#statStreak').textContent = computeStreak();
   $('#statVolume').textContent = sessions ? state.history[0].volume.toLocaleString('es') : 0;
+  renderCompliance();
 
   // Gráfico de volumen (últimas 10 sesiones, orden cronológico)
   const vols = state.history.slice(0, 10).reverse();
@@ -415,6 +427,53 @@ function renderProgress() {
        <span class="h-focus">${h.icon} ${h.label}</span>
        <span class="h-vol">${h.detail}</span></div>`).join('')
     : '<p class="muted">Sin historial aún.</p>';
+}
+
+/* ---------- Cumplimiento (agua, vitaminas, porciones) ---------- */
+let complianceRange = 7;
+
+function waterPct(date) {
+  const g = state.waterGoal || 8;
+  const c = state.water[date];
+  if (c == null) return null;
+  return Math.min(100, Math.round(c / g * 100));
+}
+function suppTotal() { return SLOTS.reduce((a, s) => a + ((state.supps[s.k] || []).length), 0); }
+function suppPct(date) {
+  const tot = suppTotal();
+  if (!tot) return null;
+  const log = state.suppLog[date] || {};
+  const taken = Object.values(log).filter(Boolean).length;
+  return Math.min(100, Math.round(taken / tot * 100));
+}
+function portionPct(date) {
+  const p = state.portions[date];
+  if (!p) return null;
+  let sum = 0;
+  PGROUPS.forEach(g => { sum += Math.min(1, (p[g.k] || 0) / g.goal); });
+  return Math.round(sum / PGROUPS.length * 100);
+}
+function compBars(data, hideLabels) {
+  return `<div class="bars comp">${data.map(d => {
+    const pct = d.pct == null ? 0 : d.pct;
+    const cls = d.pct == null ? 'nd' : pct >= 80 ? 'g' : pct >= 50 ? 'y' : 'r';
+    return `<div class="bar-col"><div class="bar ${cls}" style="height:${Math.max(4, pct)}%" title="${d.pct == null ? 'sin dato' : pct + '%'}"></div>${hideLabels ? '' : `<span class="bar-lbl">${d.label}</span>`}</div>`;
+  }).join('')}</div>`;
+}
+function renderCompliance() {
+  const dates = lastNDates(complianceRange);
+  const hideLabels = complianceRange > 14;
+  const build = (fn, elId, pctId) => {
+    const data = dates.map(d => ({ label: d.slice(8), pct: fn(d) }));
+    const withData = data.filter(x => x.pct != null);
+    const avg = withData.length ? Math.round(withData.reduce((a, x) => a + x.pct, 0) / withData.length) : null;
+    $('#' + pctId).textContent = avg != null ? avg + '% cumplido' : 'sin datos';
+    $('#' + elId).innerHTML = withData.length ? compBars(data, hideLabels) : '<p class="muted">Sin datos todavía.</p>';
+  };
+  build(waterPct, 'compWater', 'compWaterPct');
+  build(suppPct, 'compSupp', 'compSuppPct');
+  build(portionPct, 'compPort', 'compPortPct');
+  $$('.range-toggle button').forEach(b => b.classList.toggle('active', +b.dataset.range === complianceRange));
 }
 
 function barChart(data) {
@@ -595,7 +654,7 @@ function currentPhase() {
   const next = new Date(start.getTime());
   const cyclesPassed = Math.floor(diff / len) + 1;
   next.setDate(next.getDate() + cyclesPassed * len);
-  return Object.assign({ key, day, len, next: next.toISOString().slice(0, 10) }, PHASES[key]);
+  return Object.assign({ key, day, len, next: localDate(next) }, PHASES[key]);
 }
 
 function loadCycleForm() {
@@ -643,7 +702,7 @@ async function ouraGet(path) {
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return res.json();
 }
-function daysAgo(n) { const d = new Date(todayStr() + 'T00:00:00'); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); }
+function daysAgo(n) { const d = new Date(todayStr() + 'T00:00:00'); d.setDate(d.getDate() - n); return localDate(d); }
 
 async function fetchOura() {
   if (!state.oura || !state.oura.token) return;
@@ -933,6 +992,7 @@ function init() {
 
   // progreso
   $('#bwSave').onclick = saveBodyweight;
+  $$('.range-toggle button').forEach(b => b.onclick = () => { complianceRange = +b.dataset.range; renderCompliance(); });
 
   // salud · perfil
   $('#pSave').onclick = saveProfile;

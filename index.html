@@ -48,6 +48,26 @@
     </div>
 
     <section class="card">
+      <h3>📊 Cumplimiento</h3>
+      <div class="range-toggle">
+        <button data-range="7" class="active">Semana</button>
+        <button data-range="30">Mes</button>
+      </div>
+      <div class="comp-block">
+        <h4>💧 Agua <span class="comp-pct" id="compWaterPct"></span></h4>
+        <div id="compWater" class="chart"></div>
+      </div>
+      <div class="comp-block">
+        <h4>💊 Vitaminas <span class="comp-pct" id="compSuppPct"></span></h4>
+        <div id="compSupp" class="chart"></div>
+      </div>
+      <div class="comp-block">
+        <h4>🍎 Porciones (macros) <span class="comp-pct" id="compPortPct"></span></h4>
+        <div id="compPort" class="chart"></div>
+      </div>
+    </section>
+
+    <section class="card">
       <h3>Volumen por sesión</h3>
       <div id="volChart" class="chart"></div>
     </section>
