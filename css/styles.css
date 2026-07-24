@@ -124,6 +124,9 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 }
 .w-val { min-width: 42px; }
 
+.w-hint { font-size: .78rem; color: var(--muted); margin: 2px 2px 12px; }
+.w-hint strong { color: var(--accent2); }
+
 /* Series */
 .ex-sets { margin: 6px 0 4px; }
 .sets-lbl { font-size: .78rem; color: var(--muted); }

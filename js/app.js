@@ -46,6 +46,13 @@ function midReps(reps) {
   const m = reps.match(/(\d+)\D+(\d+)/);
   return m ? (parseInt(m[1]) + parseInt(m[2])) / 2 : parseInt(reps) || 10;
 }
+// Aclara si el peso es por mancuerna o total, según el equipo
+function weightHint(equip) {
+  const e = (equip || '').toLowerCase();
+  if (e.includes('mancuerna')) return '💡 Peso <strong>por mancuerna</strong> (cada mano)';
+  if (e.includes('barra') || e.includes('smith')) return '💡 Peso <strong>total</strong> (la barra vacía ya pesa ~45 lb)';
+  return '💡 Peso <strong>total</strong> (el número de la placa/máquina)';
+}
 
 /* ============================================================
    RENDER — Vista rutina
@@ -131,6 +138,7 @@ function cardHTML(ex) {
           </div>
         </div>
       </div>
+      <p class="w-hint">${weightHint(info.equip)}</p>
 
       <div class="ex-sets">
         <span class="sets-lbl">Marcá tus series:</span>
