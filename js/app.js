@@ -848,6 +848,17 @@ const EQUIV = [
   { g: '🍗 Proteína', gk: 'proteina', items: [['Res / pollo / cerdo / pescado', '1 palma o 30 g'], ['Atún en lata', '⅓ de lata (1 lata = 3 porciones)'], ['Carne molida magra', '30 g'], ['Cecina de res', '50 g'], ['Pollo deshebrado', '¼ taza'], ['Proteína en polvo', '⅓ scoop (1 scoop = 3 porciones)'], ['Jamón de pavo', '2 rebanadas'], ['Salmón', '30 g o 1 palma'], ['Huevo', '1 pieza'], ['Sardinas en aceite', '3 piezas'], ['Queso mozzarella fresco', '35 g o 1 reb gruesa'], ['Queso de cabra', '35 g o 2 reb delgadas'], ['Queso feta', '40 g o 2 cdas']] },
   { g: '🥛 Lácteos (cuentan como Proteína)', gk: 'proteina', items: [['Kefir', '½ taza', 'proteina:1'], ['Jocoque', '5 cdas', 'proteina:1'], ['Yogurt griego sin azúcar (Fage)', '½ taza o 100 g', 'proteina:1'], ['Queso cottage', '30 g', 'proteina:1'], ['Requesón', '3 cdas (60 g)', 'proteina:1'], ['Queso panela', '40 g (1 reb)', 'proteina:1'], ['Queso de cabra', '2 cdas', 'proteina:1,grasa:1'], ['Gouda / chihuahua / manchego', '30 g', 'proteina:1,grasa:1']], note: 'Tu plan no tiene grupo "Lácteos": el Fage y los lácteos magros cuentan como 1 Proteína; los quesos grasos suman 1 Proteína + 1 Grasa. Un Fage individual (~150 g) ≈ 1½ porción de proteína.' },
   { g: '🥑 Grasas', gk: 'grasa', items: [['Aceite (oliva, aguacate, coco…)', '1 cdita o 5 g'], ['Aguacate', '⅓ pieza'], ['Aceituna', '5 piezas'], ['Almendra', '10 piezas'], ['Cacahuate', '14 piezas'], ['Nuez de la india', '7 piezas'], ['Pistache', '18 piezas'], ['Crema de cacahuate', '1 cda o 10 g'], ['Harina de almendra', '2 cdas o 11 g'], ['Mantequilla o ghee', '1½ cdita'], ['Mayonesa', '1 cdita'], ['Mayonesa de aguacate', '½ cda'], ['Bebida de almendra sin azúcar', '2 tazas'], ['Bebida de coco sin azúcar', '1 taza']] },
+  { g: '🍽️ Más alimentos comunes', gk: 'proteina', items: [
+    ['Nopal cocido', '1 taza', 'verduras:1'], ['Brócoli', '1 taza', 'verduras:1'], ['Espinaca cruda', '2 tazas', 'verduras:1'],
+    ['Jitomate', '1 pieza', 'verduras:1'], ['Pepino', '1 taza', 'verduras:1'], ['Champiñones', '1 taza', 'verduras:1'],
+    ['Calabacita', '1 taza', 'verduras:1'], ['Zanahoria', '1 pieza chica', 'verduras:1'],
+    ['Frijoles cocidos', '½ taza', 'cereales:1'], ['Lentejas cocidas', '½ taza', 'cereales:1'], ['Garbanzos cocidos', '½ taza', 'cereales:1'],
+    ['Tortilla de harina integral', '1 pieza chica', 'cereales:1'], ['Granola sin azúcar', '¼ taza', 'cereales:1,grasa:1'],
+    ['Pechuga de pavo', '1 palma o 30 g', 'proteina:1'], ['Camarón', '5 piezas o 30 g', 'proteina:1'], ['Tofu firme', '60 g', 'proteina:1'],
+    ['Clara de huevo', '2 claras', 'proteina:1'], ['Edamame', '½ taza', 'proteina:1,cereales:1'],
+    ['Chía', '1 cda', 'grasa:1'], ['Linaza molida', '1 cda', 'grasa:1'], ['Semillas de girasol', '1 cda', 'grasa:1'],
+    ['Tahini', '1 cdita', 'grasa:1'], ['Coco rallado sin azúcar', '1 cda', 'grasa:1'],
+  ] },
 ];
 
 function todayPortions() { const t = todayStr(); if (!state.portions[t]) state.portions[t] = {}; return state.portions[t]; }
@@ -896,20 +907,78 @@ function renderEquiv() {
 
 const fmtPortion = n => (n % 1 ? n.toFixed(1) : String(n));
 
-// Suma porciones (½ o 1) a uno o varios grupos, según el alimento
-function addPortionFromFood(contrib, name, amt) {
+// Suma un mapa de porciones {grupo: cantidad} al día
+function addPortions(map, name) {
   const p = todayPortions();
   const added = [];
-  contrib.split(',').forEach(pair => {
-    const [g, f] = pair.split(':');
-    const add = amt * (parseFloat(f) || 1);
-    p[g] = Math.max(0, Math.round(((p[g] || 0) + add) * 2) / 2);
-    const grp = PGROUPS.find(x => x.k === g);
-    if (grp) added.push(`+${fmtPortion(add)} ${grp.short}`);
+  Object.entries(map).forEach(([g, v]) => {
+    if (v > 0) {
+      p[g] = Math.max(0, Math.round(((p[g] || 0) + v) * 2) / 2);
+      const grp = PGROUPS.find(x => x.k === g);
+      if (grp) added.push(`+${fmtPortion(v)} ${grp.short}`);
+    }
   });
   save();
   renderPortions();
-  toast(`${name}: ${added.join(' · ')}`);
+  toast(`${name}: ${added.join(' · ') || 'sin macros'}`);
+}
+// Desde la tabla (contrib = "proteina:1,grasa:1")
+function addPortionFromFood(contrib, name, amt) {
+  const map = {};
+  contrib.split(',').forEach(pair => { const [g, f] = pair.split(':'); map[g] = (map[g] || 0) + amt * (parseFloat(f) || 1); });
+  addPortions(map, name);
+}
+
+/* ---------- Buscador online de marcas (Open Food Facts) ---------- */
+const escHtml = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let offProducts = [];
+
+async function searchOFF() {
+  const q = $('#offSearch').value.trim();
+  if (!q) return;
+  $('#offResults').innerHTML = '<p class="muted">Buscando…</p>';
+  try {
+    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=20&fields=product_name,brands,nutriments`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    offProducts = (data.products || []).filter(p => p.product_name && p.nutriments &&
+      (p.nutriments['proteins_100g'] != null || p.nutriments['carbohydrates_100g'] != null || p.nutriments['fat_100g'] != null));
+    renderOFF();
+  } catch (e) {
+    $('#offResults').innerHTML = '<p class="muted">No pude buscar productos. Revisá tu internet (o probá de nuevo). ' + escHtml(e.message) + '</p>';
+  }
+}
+function renderOFF() {
+  if (!offProducts.length) { $('#offResults').innerHTML = '<p class="muted">Sin resultados. Probá otro nombre.</p>'; return; }
+  $('#offResults').innerHTML = offProducts.slice(0, 15).map((p, i) => {
+    const n = p.nutriments || {};
+    const kcal = Math.round(n['energy-kcal_100g'] || 0);
+    return `<div class="off-row">
+      <div class="off-info">
+        <span class="off-name">${escHtml(p.product_name)}${p.brands ? ` · <span class="off-brand">${escHtml(p.brands.split(',')[0])}</span>` : ''}</span>
+        <span class="off-macros">x100g: ${kcal} kcal · P${Math.round(n['proteins_100g'] || 0)} C${Math.round(n['carbohydrates_100g'] || 0)} G${Math.round(n['fat_100g'] || 0)}</span>
+      </div>
+      <div class="off-add">
+        <input type="number" class="off-grams" data-i="${i}" value="100" min="1" inputmode="numeric"><span class="off-g">g</span>
+        <button class="off-btn" data-i="${i}">＋</button>
+      </div>
+    </div>`;
+  }).join('');
+  $$('.off-btn').forEach(b => b.onclick = () => {
+    const i = +b.dataset.i;
+    const grams = parseFloat($(`.off-grams[data-i="${i}"]`).value) || 100;
+    addOFF(offProducts[i], grams);
+  });
+}
+function addOFF(prod, grams) {
+  const n = prod.nutriments || {};
+  const per = k => (n[k] || 0) * grams / 100;
+  const protein = per('proteins_100g'), fat = per('fat_100g'), carb = per('carbohydrates_100g');
+  const r = x => Math.round(x * 2) / 2;
+  // conversión aprox a porciones: 1 proteína≈7g, 1 grasa≈5g, 1 carbo≈15g
+  const map = { proteina: r(protein / 7), grasa: r(fat / 5), cereales: r(carb / 15) };
+  addPortions(map, `${prod.product_name} (${grams} g)`);
 }
 
 /* ============================================================
@@ -1094,6 +1163,8 @@ function init() {
   $('#equivSearch').oninput = renderEquiv;
   $('#resetPortions').onclick = () => { state.portions[todayStr()] = {}; save(); renderPortions(); toast('Porciones de hoy reiniciadas ↺'); };
   $('#resetWater').onclick = () => { state.water[todayStr()] = 0; save(); renderWater(); toast('Agua de hoy reiniciada ↺'); };
+  $('#offBtn').onclick = searchOFF;
+  $('#offSearch').onkeydown = e => { if (e.key === 'Enter') searchOFF(); };
   $$('[data-add]').forEach(b => b.onclick = () => addSupp(b.dataset.add));
   SLOTS.forEach(s => { $('#suppInput-' + s.k).onkeydown = e => { if (e.key === 'Enter') addSupp(s.k); }; });
 

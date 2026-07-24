@@ -268,6 +268,19 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 .equiv-add:active { transform: scale(.92); }
 .equiv-note { margin-top: 6px; }
 
+/* Buscador online (Open Food Facts) */
+.off-search { display: flex; gap: 8px; }
+.off-search .full-input { margin-top: 0; }
+.off-search button { flex-shrink: 0; }
+.off-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.off-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.off-name { font-weight: 600; font-size: .86rem; }
+.off-brand { color: var(--muted); font-weight: 400; }
+.off-macros { font-size: .74rem; color: var(--accent2); }
+.off-add { display: flex; align-items: center; gap: 5px; flex-shrink: 0; font-size: .78rem; color: var(--muted); }
+.off-grams { width: 52px; background: var(--card2); border: 1px solid var(--line); border-radius: 8px; color: var(--txt); padding: 6px; }
+.off-btn { width: 38px; height: 38px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-size: 1.2rem; font-weight: 700; cursor: pointer; }
+
 .supp-slot { margin-bottom: 16px; }
 .supp-slot h4 { font-size: .95rem; margin-bottom: 8px; }
 .supp-empty { padding: 2px 0 6px; }
