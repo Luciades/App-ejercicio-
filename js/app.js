@@ -837,7 +837,6 @@ const PGROUPS = [
   { k: 'frutas', label: '🍎 Frutas', short: 'Frutas', goal: 1 },
   { k: 'cereales', label: '🌾 Cereales / tubérculos / leguminosas', short: 'Cereales', goal: 8 },
   { k: 'proteina', label: '🍗 Proteína', short: 'Proteína', goal: 12 },
-  { k: 'lacteos', label: '🥛 Lácteos (Fage, jocoque…)', short: 'Lácteos', goal: 2 },
   { k: 'grasa', label: '🥑 Grasa y/o semillas', short: 'Grasa', goal: 6 },
 ];
 
@@ -847,7 +846,7 @@ const EQUIV = [
   { g: '🍎 Frutas', gk: 'frutas', items: [['Agua de coco', '1½ taza'], ['Blueberries', '1 taza'], ['Cereza', '20 piezas'], ['Dátil medjool', '2 piezas chicas'], ['Durazno', '2 piezas'], ['Frambuesa', '1 taza'], ['Fresa', '17 piezas o 1 taza'], ['Guayaba', '3 piezas'], ['Higo', '2 piezas'], ['Kiwi', '1 pieza'], ['Lima', '3 piezas'], ['Mandarina', '2 piezas'], ['Mango', '½ pieza'], ['Manzana', '1 pieza'], ['Melón', '1 taza'], ['Naranja', '2 piezas'], ['Papaya', '1 taza picada'], ['Pera', '½ pieza'], ['Piña', '1 taza picada'], ['Plátano', '½ pieza'], ['Sandía', '1 taza picada'], ['Toronja', '1 pieza'], ['Uvas', '18 uvas']] },
   { g: '🌾 Cereales / tubérculos / leguminosas', gk: 'cereales', items: [['Arroz blanco cocido', '¼ taza'], ['Arroz integral cocido', '⅓ taza o 70 g'], ['Quinoa cocida', '⅓ taza o 80 g'], ['Avena cocida', '½ taza'], ['Avena en hojuelas', '½ taza'], ['Bagel integral', '½ pieza chica'], ['Bolillo', '½ pieza sin migajón'], ['Camote cocido', '½ camote chico o 70 g'], ['Elote amarillo', '1½ pieza'], ['Elote enlatado', '½ taza'], ['Galletas de arroz', '2 piezas'], ['Harina de avena', '2 cdas'], ['Galletas maría', '5 piezas'], ['Pan árabe integral', '½ pieza chica'], ['Pan integral', '1 rebanada'], ['Pan thins', '1 pieza'], ['Pan de hamburguesa chico', '½ pieza'], ['Papa cocida', '½ pieza'], ['Pasta integral cocida', '⅓ taza o 45 g'], ['Salmas', '1 paquete'], ['Tortilla de maíz', '1 tortilla'], ['Tortilla de nopal', '3 tortillas'], ['Totopos de maíz horneados', '15 totopos o 22 g']] },
   { g: '🍗 Proteína', gk: 'proteina', items: [['Res / pollo / cerdo / pescado', '1 palma o 30 g'], ['Atún en lata', '⅓ de lata (1 lata = 3 porciones)'], ['Carne molida magra', '30 g'], ['Cecina de res', '50 g'], ['Pollo deshebrado', '¼ taza'], ['Proteína en polvo', '⅓ scoop (1 scoop = 3 porciones)'], ['Jamón de pavo', '2 rebanadas'], ['Salmón', '30 g o 1 palma'], ['Huevo', '1 pieza'], ['Sardinas en aceite', '3 piezas'], ['Queso mozzarella fresco', '35 g o 1 reb gruesa'], ['Queso de cabra', '35 g o 2 reb delgadas'], ['Queso feta', '40 g o 2 cdas']] },
-  { g: '🥛 Lácteos', gk: 'lacteos', items: [['Kefir', '½ taza'], ['Jocoque', '5 cdas'], ['Yogurt griego sin azúcar (Fage)', '½ taza o 100 g'], ['Queso cottage', '30 g'], ['Requesón o jocoque', '3 cdas (60 g)'], ['Queso de cabra', '2 cdas'], ['Gouda / chihuahua / manchego', '30 g'], ['Queso panela', '40 g (1 reb)']], note: 'El Fage 0% aporta ~10 g de proteína por 100 g. En tu plan cuenta como Lácteo, pero suma a tu proteína del día. Un Fage individual (~150 g) ≈ 1½ porción.' },
+  { g: '🥛 Lácteos (cuentan como Proteína)', gk: 'proteina', items: [['Kefir', '½ taza', 'proteina:1'], ['Jocoque', '5 cdas', 'proteina:1'], ['Yogurt griego sin azúcar (Fage)', '½ taza o 100 g', 'proteina:1'], ['Queso cottage', '30 g', 'proteina:1'], ['Requesón', '3 cdas (60 g)', 'proteina:1'], ['Queso panela', '40 g (1 reb)', 'proteina:1'], ['Queso de cabra', '2 cdas', 'proteina:1,grasa:1'], ['Gouda / chihuahua / manchego', '30 g', 'proteina:1,grasa:1']], note: 'Tu plan no tiene grupo "Lácteos": el Fage y los lácteos magros cuentan como 1 Proteína; los quesos grasos suman 1 Proteína + 1 Grasa. Un Fage individual (~150 g) ≈ 1½ porción de proteína.' },
   { g: '🥑 Grasas', gk: 'grasa', items: [['Aceite (oliva, aguacate, coco…)', '1 cdita o 5 g'], ['Aguacate', '⅓ pieza'], ['Aceituna', '5 piezas'], ['Almendra', '10 piezas'], ['Cacahuate', '14 piezas'], ['Nuez de la india', '7 piezas'], ['Pistache', '18 piezas'], ['Crema de cacahuate', '1 cda o 10 g'], ['Harina de almendra', '2 cdas o 11 g'], ['Mantequilla o ghee', '1½ cdita'], ['Mayonesa', '1 cdita'], ['Mayonesa de aguacate', '½ cda'], ['Bebida de almendra sin azúcar', '2 tazas'], ['Bebida de coco sin azúcar', '1 taza']] },
 ];
 
@@ -878,30 +877,39 @@ function renderEquiv() {
     const items = sec.items.filter(it => !q || it[0].toLowerCase().includes(q));
     if (!items.length) return;
     html += `<div class="equiv-sec"><h4>${sec.g}</h4>`;
-    html += items.map(it => `<div class="equiv-row">
+    html += items.map(it => {
+      const contrib = it[2] || (sec.gk + ':1');
+      return `<div class="equiv-row">
         <div class="equiv-info"><span class="equiv-name">${it[0]}</span><span class="equiv-q">1 porción = ${it[1]}</span></div>
         <div class="equiv-btns">
-          <button class="equiv-add half" data-g="${sec.gk}" data-n="${escq(it[0])}" data-amt="0.5" title="Sumar ½ porción">＋½</button>
-          <button class="equiv-add" data-g="${sec.gk}" data-n="${escq(it[0])}" data-amt="1" title="Sumar 1 porción">＋1</button>
+          <button class="equiv-add half" data-c="${escq(contrib)}" data-n="${escq(it[0])}" data-amt="0.5" title="Sumar ½ porción">＋½</button>
+          <button class="equiv-add" data-c="${escq(contrib)}" data-n="${escq(it[0])}" data-amt="1" title="Sumar 1 porción">＋1</button>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     if (sec.note && !q) html += `<p class="muted equiv-note">💡 ${sec.note}</p>`;
     html += '</div>';
   });
   $('#equivList').innerHTML = html || '<p class="muted">Sin resultados.</p>';
-  $$('.equiv-add').forEach(b => b.onclick = () => addPortionFromFood(b.dataset.g, b.dataset.n, parseFloat(b.dataset.amt)));
+  $$('.equiv-add').forEach(b => b.onclick = () => addPortionFromFood(b.dataset.c, b.dataset.n, parseFloat(b.dataset.amt)));
 }
 
 const fmtPortion = n => (n % 1 ? n.toFixed(1) : String(n));
 
-// Suma porciones (½ o 1) al grupo correcto desde la tabla de alimentos
-function addPortionFromFood(gk, name, amt) {
+// Suma porciones (½ o 1) a uno o varios grupos, según el alimento
+function addPortionFromFood(contrib, name, amt) {
   const p = todayPortions();
-  p[gk] = Math.max(0, Math.round(((p[gk] || 0) + amt) * 2) / 2);
+  const added = [];
+  contrib.split(',').forEach(pair => {
+    const [g, f] = pair.split(':');
+    const add = amt * (parseFloat(f) || 1);
+    p[g] = Math.max(0, Math.round(((p[g] || 0) + add) * 2) / 2);
+    const grp = PGROUPS.find(x => x.k === g);
+    if (grp) added.push(`+${fmtPortion(add)} ${grp.short}`);
+  });
   save();
   renderPortions();
-  const g = PGROUPS.find(x => x.k === gk);
-  toast(`+${fmtPortion(amt)} porción de ${g.short} (${name}) · ${fmtPortion(p[gk])}/${g.goal} hoy`);
+  toast(`${name}: ${added.join(' · ')}`);
 }
 
 /* ============================================================
