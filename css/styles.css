@@ -257,7 +257,9 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 .equiv-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .equiv-name { font-weight: 600; }
 .equiv-q { color: var(--accent2); font-size: .78rem; }
-.equiv-add { flex-shrink: 0; width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-size: 1.3rem; font-weight: 700; cursor: pointer; line-height: 1; }
+.equiv-btns { display: flex; gap: 6px; flex-shrink: 0; }
+.equiv-add { min-width: 46px; height: 40px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer; line-height: 1; padding: 0 8px; }
+.equiv-add.half { background: var(--card2); color: var(--accent2); border: 1px solid var(--line); }
 .equiv-add:active { transform: scale(.92); }
 .equiv-note { margin-top: 6px; }
 

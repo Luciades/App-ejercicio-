@@ -63,7 +63,8 @@ function lastNDates(n) {
 // Semana actual (cambia cada lunes aprox.)
 function weekIndex() { return Math.floor((Date.now() + 3 * 86400000) / (7 * 86400000)); }
 
-function chosenId(ex) {
+// Elección "base" de un ejercicio (rotación semanal o selección manual)
+function basePick(ex) {
   const sel = state.selected[ex.key];
   if (state.settings.autoRotate && ex.opts.length > 1) {
     // un cambio manual solo pisa la rotación durante esta semana
@@ -73,6 +74,22 @@ function chosenId(ex) {
   const id = (sel && typeof sel === 'object') ? sel.id : sel;
   return (id && ex.opts.includes(id)) ? id : ex.opts[0];
 }
+// Resuelve el día evitando ejercicios repetidos entre slots
+let dayResolved = {};
+function resolveDay(day) {
+  dayResolved = {};
+  const used = new Set();
+  day.exercises.forEach(ex => {
+    let id = basePick(ex);
+    if (used.has(id)) {
+      const alt = ex.opts.find(o => !used.has(o));
+      if (alt) id = alt;
+    }
+    used.add(id);
+    dayResolved[ex.key] = id;
+  });
+}
+function chosenId(ex) { return dayResolved[ex.key] || basePick(ex); }
 
 // Ajuste según Readiness de Oura
 function ouraAdjust() {
@@ -139,6 +156,7 @@ function renderTabs() {
 
 function renderDay() {
   const d = ROUTINE.days[currentDay];
+  resolveDay(d); // evita ejercicios duplicados en el mismo día
   $('#headerSub').textContent = `${d.name} · ${d.focus}`;
   const totalSets = d.exercises.reduce((a, e) => a + effectiveSets(e), 0);
   $('#dayHead').innerHTML = `<h2>${d.emoji} ${d.focus}</h2>
@@ -830,7 +848,7 @@ function renderPortions() {
   $('#portionTracker').innerHTML = PGROUPS.map(g => {
     const n = p[g.k] || 0, pct = Math.min(100, n / g.goal * 100), done = n >= g.goal;
     return `<div class="portion">
-      <div class="portion-top"><span>${g.label}</span><span class="${done ? 'done' : ''}">${n} / ${g.goal}</span></div>
+      <div class="portion-top"><span>${g.label}</span><span class="${done ? 'done' : ''}">${fmtPortion(n)} / ${g.goal}</span></div>
       <div class="portion-row">
         <button class="w-btn" data-k="${g.k}" data-d="-1">−</button>
         <div class="macro-track"><div class="macro-fill ${done ? 'done' : ''}" style="width:${pct}%"></div></div>
@@ -850,23 +868,28 @@ function renderEquiv() {
     html += `<div class="equiv-sec"><h4>${sec.g}</h4>`;
     html += items.map(it => `<div class="equiv-row">
         <div class="equiv-info"><span class="equiv-name">${it[0]}</span><span class="equiv-q">1 porción = ${it[1]}</span></div>
-        <button class="equiv-add" data-g="${sec.gk}" data-n="${escq(it[0])}" title="Sumar 1 porción">＋</button>
+        <div class="equiv-btns">
+          <button class="equiv-add half" data-g="${sec.gk}" data-n="${escq(it[0])}" data-amt="0.5" title="Sumar ½ porción">＋½</button>
+          <button class="equiv-add" data-g="${sec.gk}" data-n="${escq(it[0])}" data-amt="1" title="Sumar 1 porción">＋1</button>
+        </div>
       </div>`).join('');
     if (sec.note && !q) html += `<p class="muted equiv-note">💡 ${sec.note}</p>`;
     html += '</div>';
   });
   $('#equivList').innerHTML = html || '<p class="muted">Sin resultados.</p>';
-  $$('.equiv-add').forEach(b => b.onclick = () => addPortionFromFood(b.dataset.g, b.dataset.n));
+  $$('.equiv-add').forEach(b => b.onclick = () => addPortionFromFood(b.dataset.g, b.dataset.n, parseFloat(b.dataset.amt)));
 }
 
-// Suma 1 porción al grupo correcto desde la tabla de alimentos
-function addPortionFromFood(gk, name) {
+const fmtPortion = n => (n % 1 ? n.toFixed(1) : String(n));
+
+// Suma porciones (½ o 1) al grupo correcto desde la tabla de alimentos
+function addPortionFromFood(gk, name, amt) {
   const p = todayPortions();
-  p[gk] = Math.max(0, (p[gk] || 0) + 1);
+  p[gk] = Math.max(0, Math.round(((p[gk] || 0) + amt) * 2) / 2);
   save();
   renderPortions();
   const g = PGROUPS.find(x => x.k === gk);
-  toast(`+1 porción de ${g.short} (${name}) · ${p[gk]}/${g.goal} hoy`);
+  toast(`+${fmtPortion(amt)} porción de ${g.short} (${name}) · ${fmtPortion(p[gk])}/${g.goal} hoy`);
 }
 
 /* ============================================================
