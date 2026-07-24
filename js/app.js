@@ -564,11 +564,14 @@ function renderCycle() {
 async function ouraGet(path) {
   const o = state.oura || {};
   let base = 'https://api.ouraring.com';
-  if (o.proxy && o.proxy.trim()) {
-    base = o.proxy.trim().replace(/\/$/, '');
+  if (o.proxy && o.proxy.replace(/\s+/g, '')) {
+    base = o.proxy.replace(/\s+/g, '').replace(/\/$/, '');
     if (!/^https?:\/\//i.test(base)) base = 'https://' + base;
   }
-  const res = await fetch(base + path, { headers: { Authorization: 'Bearer ' + o.token } });
+  const token = (o.token || '').replace(/\s+/g, ''); // saca espacios/saltos invisibles
+  const url = base + path;
+  try { new URL(url); } catch { throw new Error('URL de proxy inválida'); }
+  const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return res.json();
 }
@@ -617,6 +620,8 @@ function renderOura(err) {
       $('#ouraMsg').innerHTML = '⚠️ Token inválido o vencido. Regeneralo en Oura (cloud.ouraring.com) y volvé a pegarlo. (' + m + ')';
     } else if (/Failed to fetch|NetworkError|Load failed/i.test(m)) {
       $('#ouraMsg').innerHTML = '⚠️ No llegó al servidor. Revisá la URL del proxy en "¿Da error al conectar?" (debe empezar con https:// y terminar en .workers.dev).';
+    } else if (/did not match|pattern|inválida/i.test(m)) {
+      $('#ouraMsg').innerHTML = '⚠️ El token o el proxy tienen un carácter raro (un espacio o salto de línea al copiar). Borralos, volvé a pegarlos y reconectá.';
     } else {
       $('#ouraMsg').innerHTML = '⚠️ No pude conectar: ' + m + '. Revisá el token y el proxy.';
     }
@@ -625,9 +630,9 @@ function renderOura(err) {
   }
 }
 function connectOura() {
-  const token = $('#ouraToken').value.trim();
+  const token = $('#ouraToken').value.replace(/\s+/g, '');
   if (!token) { toast('Pegá tu token de Oura'); return; }
-  const proxy = $('#ouraProxy') ? $('#ouraProxy').value.trim() : '';
+  const proxy = $('#ouraProxy') ? $('#ouraProxy').value.replace(/\s+/g, '') : '';
   state.oura = { token, proxy, data: null };
   save();
   renderOura();
