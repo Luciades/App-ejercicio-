@@ -240,6 +240,8 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 .phase-badge { margin-top: 14px; background: var(--card2); border-radius: 12px; padding: 12px; text-align: center; font-size: 1rem; }
 
 /* ---------- Comida ---------- */
+.today-tag { font-size: .72rem; color: var(--accent2); font-weight: 600; }
+.reset-day { background: var(--card2); border: 1px solid var(--line); color: var(--muted); border-radius: 8px; padding: 3px 8px; font-size: .72rem; cursor: pointer; margin-left: 4px; }
 .portion { margin-bottom: 14px; }
 .portion-top { display: flex; justify-content: space-between; font-size: .9rem; font-weight: 600; margin-bottom: 6px; }
 .portion-top .done { color: var(--green); }

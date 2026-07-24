@@ -152,8 +152,8 @@
     <h2 class="view-title">🍎 Comida</h2>
 
     <section class="card">
-      <h3>Porciones de hoy</h3>
-      <p class="muted">Sumá cada porción que comés. Las metas son las de tu plan.</p>
+      <h3>Porciones de hoy <span class="today-tag" id="portionsDate"></span></h3>
+      <p class="muted">Sumá cada porción que comés. Las metas son las de tu plan. <button class="reset-day" id="resetPortions">↺ reiniciar hoy</button></p>
       <div id="portionTracker"></div>
     </section>
 
@@ -256,7 +256,7 @@
     </section>
 
     <section class="card">
-      <h3>💧 Agua de hoy</h3>
+      <h3>💧 Agua de hoy <span class="today-tag" id="waterDate"></span> <button class="reset-day" id="resetWater">↺ reiniciar</button></h3>
       <div class="water-row">
         <button class="w-btn big" id="waterMinus">−</button>
         <div class="water-count"><span id="waterCount">0</span><span class="water-goal"> / <span id="waterGoal">8</span> vasos</span></div>

@@ -52,6 +52,7 @@ function localDate(d) {
   return `${y}-${m}-${day}`;
 }
 const todayStr = () => localDate(new Date());
+const todayLabel = () => new Date(todayStr() + 'T00:00:00').toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' });
 function lastNDates(n) {
   const base = new Date(todayStr() + 'T00:00:00');
   const arr = [];
@@ -618,6 +619,7 @@ function computeHealth() {
 function renderWater() {
   const goal = state.waterGoal || 8;
   const count = state.water[todayStr()] || 0;
+  const wd = $('#waterDate'); if (wd) wd.textContent = todayLabel();
   $('#waterCount').textContent = count;
   $('#waterGoal').textContent = goal;
   $('#waterGoalInput').value = goal;
@@ -736,8 +738,13 @@ async function fetchOura() {
       ouraGet('/v2/usercollection/daily_sleep' + q),
       ouraGet('/v2/usercollection/daily_activity' + q),
     ]);
-    const last = a => (a && a.data && a.data.length) ? a.data[a.data.length - 1] : null;
-    const r = last(rd), s = last(sl), a = last(ac);
+    // toma el registro más reciente que realmente tenga el dato
+    const lastWith = (arr, f) => {
+      if (!arr || !arr.data) return null;
+      for (let i = arr.data.length - 1; i >= 0; i--) if (f(arr.data[i]) != null) return arr.data[i];
+      return null;
+    };
+    const r = lastWith(rd, x => x.score), s = lastWith(sl, x => x.score), a = lastWith(ac, x => x.steps);
     state.oura.data = {
       readiness: r ? r.score : null,
       sleep: s ? s.score : null,
@@ -849,6 +856,7 @@ function setPortion(k, delta) { const p = todayPortions(); p[k] = Math.max(0, (p
 
 function renderPortions() {
   const p = todayPortions();
+  const dt = $('#portionsDate'); if (dt) dt.textContent = todayLabel();
   $('#portionTracker').innerHTML = PGROUPS.map(g => {
     const n = p[g.k] || 0, pct = Math.min(100, n / g.goal * 100), done = n >= g.goal;
     return `<div class="portion">
@@ -1076,6 +1084,8 @@ function init() {
 
   // comida
   $('#equivSearch').oninput = renderEquiv;
+  $('#resetPortions').onclick = () => { state.portions[todayStr()] = {}; save(); renderPortions(); toast('Porciones de hoy reiniciadas ↺'); };
+  $('#resetWater').onclick = () => { state.water[todayStr()] = 0; save(); renderWater(); toast('Agua de hoy reiniciada ↺'); };
   $$('[data-add]').forEach(b => b.onclick = () => addSupp(b.dataset.add));
   SLOTS.forEach(s => { $('#suppInput-' + s.k).onkeydown = e => { if (e.key === 'Enter') addSupp(s.k); }; });
 
@@ -1097,9 +1107,20 @@ function init() {
   // Si Oura está conectada, refresca en segundo plano
   if (state.oura && state.oura.token) fetchOura();
 
-  // Service worker (funciona offline)
+  // Service worker (funciona offline) + auto-actualización
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (nw) nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) nw.postMessage('skip');
+        });
+      });
+    }).catch(() => {});
+    let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (reloaded) return; reloaded = true; location.reload();
+    });
   }
 }
 
