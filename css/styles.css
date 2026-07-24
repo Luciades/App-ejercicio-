@@ -91,9 +91,11 @@ h1, h2, h3 { line-height: 1.2; }
 
 .ex-media { background: #fff; }
 .gif { position: relative; width: 100%; aspect-ratio: 4/3; background: #fff; overflow: hidden; }
-.gif img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity .18s; }
-.gif .f1 { opacity: 0; }
-body.anim-b .gif:not(.no-anim) .f0 { opacity: 0; }
+.gif img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.gif .f0 { opacity: 1; }
+.gif .f1 { opacity: 0; transition: opacity .28s ease-in-out; }
+/* La imagen base (f0) queda siempre visible; solo se funde la segunda
+   encima, así nunca se ve el fondo blanco entre cuadros (sin "flash"). */
 body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 .gif-fallback {
   position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center;
