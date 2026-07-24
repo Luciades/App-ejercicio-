@@ -20,7 +20,11 @@ const defaultState = () => ({
   waterGoal: 8,
   cycle: null,    // { start, len, per }
   oura: null,     // { token, proxy, data }
-  settings: { dark: true, sound: true, anim: true, unit: 'lb', autoRotate: true, ouraAdapt: true },
+  portions: {},   // { 'YYYY-MM-DD': { verduras, frutas, cereales, proteina, grasa } }
+  activities: [], // [ {date, type, min} ]
+  supps: [],      // ['Vitamina D', ...]
+  suppLog: {},    // { 'YYYY-MM-DD': { 'Vitamina D': true } }
+  settings: { dark: true, sound: true, anim: true, unit: 'lb', autoRotate: true, ouraAdapt: true, cycleAdapt: true },
 });
 
 let state = load();
@@ -55,8 +59,8 @@ function chosenId(ex) {
   return (id && ex.opts.includes(id)) ? id : ex.opts[0];
 }
 
-// Ajuste del día según Readiness de Oura
-function dailyAdjust() {
+// Ajuste según Readiness de Oura
+function ouraAdjust() {
   if (!state.settings.ouraAdapt) return { d: 0, tag: '', note: '' };
   const o = state.oura && state.oura.data;
   if (!o || o.readiness == null) return { d: 0, tag: '', note: '' };
@@ -65,6 +69,27 @@ function dailyAdjust() {
   if (r < 70) return { d: -1, tag: '🟠 Día suave', note: `Readiness ${r}: 1 serie menos por ejercicio y un poco más de descanso.` };
   if (r >= 85) return { d: 0, tag: '🟢 Día a tope', note: `Readiness ${r}: gran día para empujar peso e intentar récords.` };
   return { d: 0, tag: '🟡 Día normal', note: `Readiness ${r}: entrená como siempre.` };
+}
+// Ajuste según la fase del ciclo (guía, cada cuerpo es distinto)
+function cycleAdjust() {
+  if (!state.settings.cycleAdapt) return { d: 0, tag: '', note: '' };
+  const ph = currentPhase();
+  if (!ph) return { d: 0, tag: '', note: '' };
+  const day = ph.day, len = ph.len;
+  if (ph.key === 'menstrual' && day <= 2) return { d: -1, tag: '🌑 Regla (día ' + day + ')', note: 'Primeros días: si tenés poca energía, bajá el volumen y priorizá moverte suave.' };
+  if (ph.key === 'menstrual') return { d: 0, tag: '🌑 Menstrual', note: 'La energía suele volver: entrená normal si te sentís bien.' };
+  if (ph.key === 'folicular') return { d: 0, tag: '🌒 Folicular', note: 'Ventana fuerte: buen momento para subir peso e ir por récords.' };
+  if (ph.key === 'ovulacion') return { d: 0, tag: '🌕 Ovulación', note: 'Pico de fuerza; calentá bien (hay más laxitud articular).' };
+  if (day > len - 4) return { d: -1, tag: '🌘 Premenstrual', note: 'Puede subir la fatiga: bajamos un poco el volumen y sumamos descanso.' };
+  return { d: 0, tag: '🌘 Lútea', note: 'Mantené el trabajo y cuidá la recuperación.' };
+}
+// Combina Oura + ciclo (nunca agrega series, solo recorta cuando conviene)
+function dailyAdjust() {
+  let d = 0; const parts = [];
+  const o = ouraAdjust(); if (o.tag) { d += o.d; parts.push(o); }
+  const c = cycleAdjust(); if (c.tag) { d += c.d; parts.push(c); }
+  d = Math.max(-2, Math.min(0, d));
+  return { d, parts };
 }
 function effectiveSets(ex) { return Math.max(2, ex.sets + dailyAdjust().d); }
 function adjustedRest(ex) { return dailyAdjust().d < 0 ? Math.round(ex.rest * 1.2) : ex.rest; }
@@ -340,9 +365,13 @@ function finishWorkout() {
 /* ============================================================
    VISTA PROGRESO
    ============================================================ */
+function allWorkoutDates() {
+  return [...state.history.map(h => h.date), ...(state.activities || []).map(a => a.date)];
+}
 function computeStreak() {
-  if (!state.history.length) return 0;
-  const days = [...new Set(state.history.map(h => h.date))].sort().reverse();
+  const dl = allWorkoutDates();
+  if (!dl.length) return 0;
+  const days = [...new Set(dl)].sort().reverse();
   let streak = 0;
   let cursor = new Date(todayStr());
   // Permite que la racha empiece hoy o ayer
@@ -371,12 +400,16 @@ function renderProgress() {
     ? lineChart(bw.map(b => ({ label: b.date.slice(5), value: b.kg })), 'kg')
     : '<p class="muted">Registrá tu peso para ver la evolución.</p>';
 
-  // Historial
-  $('#historyList').innerHTML = sessions
-    ? state.history.slice(0, 12).map(h =>
+  // Historial combinado (gym + otras actividades)
+  const combined = [
+    ...state.history.map(h => ({ date: h.date, label: h.focus, detail: `${h.sets} series · ${h.volume.toLocaleString('es')} lb`, icon: '🏋️' })),
+    ...(state.activities || []).map(a => ({ date: a.date, label: a.type, detail: a.min ? `${a.min} min` : 'actividad', icon: '🤸' })),
+  ].sort((x, y) => y.date.localeCompare(x.date)).slice(0, 15);
+  $('#historyList').innerHTML = combined.length
+    ? combined.map(h =>
       `<div class="hist-row"><span class="h-date">${h.date}</span>
-       <span class="h-focus">${h.focus}</span>
-       <span class="h-vol">${h.sets} series · ${h.volume.toLocaleString('es')} lb</span></div>`).join('')
+       <span class="h-focus">${h.icon} ${h.label}</span>
+       <span class="h-vol">${h.detail}</span></div>`).join('')
     : '<p class="muted">Sin historial aún.</p>';
 }
 
@@ -686,9 +719,8 @@ function renderInsight() {
   if (!el) return;
   const parts = [];
   const adj = dailyAdjust();
-  if (adj.tag) parts.push(`💍 <strong>${adj.tag}</strong>: ${adj.note}`);
-  const ph = currentPhase();
-  if (ph) parts.push(`${ph.emoji} <strong>Fase ${ph.name}</strong>: ${ph.short}`);
+  adj.parts.forEach(p => parts.push(`<strong>${p.tag}</strong>: ${p.note}`));
+  if (adj.d < 0) parts.push(`📉 Hoy ajustamos: <strong>${adj.d} serie${adj.d === -1 ? '' : 's'}</strong> por ejercicio y más descanso.`);
   const o = state.oura && state.oura.data;
   if (o && o.steps != null) parts.push(`👟 ${o.steps.toLocaleString('es')} pasos hoy`);
   if (!parts.length) { el.classList.add('hidden'); return; }
@@ -705,6 +737,110 @@ function renderSalud() {
 }
 
 /* ============================================================
+   COMIDA — porciones (sistema de tu plan) + tabla de gramajes
+   ============================================================ */
+// Metas de porciones por día (según tu plan: suma de desayuno+comida+cena)
+const PGROUPS = [
+  { k: 'verduras', label: '🥬 Verduras', goal: 5 },
+  { k: 'frutas', label: '🍎 Frutas', goal: 1 },
+  { k: 'cereales', label: '🌾 Cereales / tubérculos / leguminosas', goal: 8 },
+  { k: 'proteina', label: '🍗 Proteína', goal: 12 },
+  { k: 'grasa', label: '🥑 Grasa y/o semillas', goal: 6 },
+];
+
+// Equivalencias: 1 porción = ... (de tu tabla naranja)
+const EQUIV = [
+  { g: '🥬 Verduras', items: [['Verdura de hoja verde', '2 tazas'], ['Verdura de colores cruda', '1 taza (asada: la mitad)']], note: 'Papa, camote y elote NO cuentan como verdura.' },
+  { g: '🍎 Frutas', items: [['Agua de coco', '1½ taza'], ['Blueberries', '1 taza'], ['Cereza', '20 piezas'], ['Dátil medjool', '2 piezas chicas'], ['Durazno', '2 piezas'], ['Frambuesa', '1 taza'], ['Fresa', '17 piezas o 1 taza'], ['Guayaba', '3 piezas'], ['Higo', '2 piezas'], ['Kiwi', '1 pieza'], ['Lima', '3 piezas'], ['Mandarina', '2 piezas'], ['Mango', '½ pieza'], ['Manzana', '1 pieza'], ['Melón', '1 taza'], ['Naranja', '2 piezas'], ['Papaya', '1 taza picada'], ['Pera', '½ pieza'], ['Piña', '1 taza picada'], ['Plátano', '½ pieza'], ['Sandía', '1 taza picada'], ['Toronja', '1 pieza'], ['Uvas', '18 uvas']] },
+  { g: '🌾 Cereales / tubérculos / leguminosas', items: [['Arroz blanco cocido', '¼ taza'], ['Arroz integral cocido', '⅓ taza o 70 g'], ['Quinoa cocida', '⅓ taza o 80 g'], ['Avena cocida', '½ taza'], ['Avena en hojuelas', '½ taza'], ['Bagel integral', '½ pieza chica'], ['Bolillo', '½ pieza sin migajón'], ['Camote cocido', '½ camote chico o 70 g'], ['Elote amarillo', '1½ pieza'], ['Elote enlatado', '½ taza'], ['Galletas de arroz', '2 piezas'], ['Harina de avena', '2 cdas'], ['Galletas maría', '5 piezas'], ['Pan árabe integral', '½ pieza chica'], ['Pan integral', '1 rebanada'], ['Pan thins', '1 pieza'], ['Pan de hamburguesa chico', '½ pieza'], ['Papa cocida', '½ pieza'], ['Pasta integral cocida', '⅓ taza o 45 g'], ['Salmas', '1 paquete'], ['Tortilla de maíz', '1 tortilla'], ['Tortilla de nopal', '3 tortillas'], ['Totopos de maíz horneados', '15 totopos o 22 g']] },
+  { g: '🍗 Proteína', items: [['Res / pollo / cerdo / pescado', '1 palma o 30 g'], ['Atún en lata', '⅓ de lata (1 lata = 3 porciones)'], ['Carne molida magra', '30 g'], ['Cecina de res', '50 g'], ['Pollo deshebrado', '¼ taza'], ['Proteína en polvo', '⅓ scoop (1 scoop = 3 porciones)'], ['Jamón de pavo', '2 rebanadas'], ['Salmón', '30 g o 1 palma'], ['Huevo', '1 pieza'], ['Sardinas en aceite', '3 piezas'], ['Queso mozzarella fresco', '35 g o 1 reb gruesa'], ['Queso de cabra', '35 g o 2 reb delgadas'], ['Queso feta', '40 g o 2 cdas']] },
+  { g: '🥛 Lácteos', items: [['Kefir', '½ taza'], ['Jocoque', '5 cdas'], ['Yogurt griego sin azúcar', '½ taza o 100 g'], ['Queso cottage', '30 g'], ['Requesón o jocoque', '3 cdas (60 g)'], ['Queso de cabra', '2 cdas'], ['Gouda / chihuahua / manchego', '30 g'], ['Queso panela', '40 g (1 reb)']] },
+  { g: '🥑 Grasas', items: [['Aceite (oliva, aguacate, coco…)', '1 cdita o 5 g'], ['Aguacate', '⅓ pieza'], ['Aceituna', '5 piezas'], ['Almendra', '10 piezas'], ['Cacahuate', '14 piezas'], ['Nuez de la india', '7 piezas'], ['Pistache', '18 piezas'], ['Crema de cacahuate', '1 cda o 10 g'], ['Harina de almendra', '2 cdas o 11 g'], ['Mantequilla o ghee', '1½ cdita'], ['Mayonesa', '1 cdita'], ['Mayonesa de aguacate', '½ cda'], ['Bebida de almendra sin azúcar', '2 tazas'], ['Bebida de coco sin azúcar', '1 taza']] },
+];
+
+function todayPortions() { const t = todayStr(); if (!state.portions[t]) state.portions[t] = {}; return state.portions[t]; }
+function setPortion(k, delta) { const p = todayPortions(); p[k] = Math.max(0, (p[k] || 0) + delta); save(); renderPortions(); }
+
+function renderPortions() {
+  const p = todayPortions();
+  $('#portionTracker').innerHTML = PGROUPS.map(g => {
+    const n = p[g.k] || 0, pct = Math.min(100, n / g.goal * 100), done = n >= g.goal;
+    return `<div class="portion">
+      <div class="portion-top"><span>${g.label}</span><span class="${done ? 'done' : ''}">${n} / ${g.goal}</span></div>
+      <div class="portion-row">
+        <button class="w-btn" data-k="${g.k}" data-d="-1">−</button>
+        <div class="macro-track"><div class="macro-fill ${done ? 'done' : ''}" style="width:${pct}%"></div></div>
+        <button class="w-btn" data-k="${g.k}" data-d="1">+</button>
+      </div>
+    </div>`;
+  }).join('');
+  $$('#portionTracker .w-btn').forEach(b => b.onclick = () => setPortion(b.dataset.k, +b.dataset.d));
+}
+
+function renderEquiv() {
+  const q = ($('#equivSearch').value || '').toLowerCase().trim();
+  let html = '';
+  EQUIV.forEach(sec => {
+    const items = sec.items.filter(it => !q || it[0].toLowerCase().includes(q));
+    if (!items.length) return;
+    html += `<div class="equiv-sec"><h4>${sec.g}</h4>`;
+    html += items.map(it => `<div class="equiv-row"><span>${it[0]}</span><span class="equiv-q">${it[1]}</span></div>`).join('');
+    if (sec.note && !q) html += `<p class="muted equiv-note">💡 ${sec.note}</p>`;
+    html += '</div>';
+  });
+  $('#equivList').innerHTML = html || '<p class="muted">Sin resultados.</p>';
+}
+
+/* ============================================================
+   VITAMINAS / SUPLEMENTOS — check diario
+   ============================================================ */
+function addSupp() {
+  const name = $('#suppInput').value.trim();
+  if (!name) return;
+  if (!state.supps.includes(name)) state.supps.push(name);
+  $('#suppInput').value = '';
+  save(); renderSupps();
+}
+function delSupp(name) {
+  state.supps = state.supps.filter(s => s !== name);
+  save(); renderSupps();
+}
+function toggleSupp(name) {
+  const t = todayStr();
+  if (!state.suppLog[t]) state.suppLog[t] = {};
+  state.suppLog[t][name] = !state.suppLog[t][name];
+  save(); renderSupps();
+}
+function renderSupps() {
+  const t = state.suppLog[todayStr()] || {};
+  $('#suppList').innerHTML = state.supps.length
+    ? state.supps.map(s => `<div class="supp-row ${t[s] ? 'on' : ''}">
+        <button class="supp-check" data-s="${s.replace(/"/g, '&quot;')}">${t[s] ? '✓' : ''}</button>
+        <span class="supp-name">${s}</span>
+        <button class="supp-del" data-d="${s.replace(/"/g, '&quot;')}">🗑️</button>
+      </div>`).join('')
+    : '<p class="muted">Agregá tus vitaminas/suplementos y marcalos cada día.</p>';
+  $$('.supp-check').forEach(b => b.onclick = () => toggleSupp(b.dataset.s));
+  $$('.supp-del').forEach(b => b.onclick = () => delSupp(b.dataset.d));
+}
+
+function renderComida() { renderPortions(); renderEquiv(); renderSupps(); }
+
+/* ============================================================
+   OTRAS ACTIVIDADES — pilates, flow, pádel…
+   ============================================================ */
+function addActivity() {
+  const type = $('#actType').value;
+  const min = parseInt($('#actMin').value) || 0;
+  state.activities.unshift({ date: todayStr(), type, min });
+  state.activities = state.activities.slice(0, 100);
+  save();
+  $('#actMin').value = '';
+  renderProgress();
+  toast('¡Actividad registrada! 🤸');
+}
+
+/* ============================================================
    AJUSTES / datos
    ============================================================ */
 function applySettings() {
@@ -714,6 +850,7 @@ function applySettings() {
   $('#animToggle').checked = state.settings.anim;
   $('#rotateToggle').checked = state.settings.autoRotate;
   $('#ouraAdaptToggle').checked = state.settings.ouraAdapt;
+  $('#cycleAdaptToggle').checked = state.settings.cycleAdapt;
 }
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -739,11 +876,12 @@ function importData(file) {
    NAVEGACIÓN / UI global
    ============================================================ */
 function setView(name) {
-  ['routine', 'salud', 'progress', 'settings'].forEach(v =>
+  ['routine', 'comida', 'salud', 'progress', 'settings'].forEach(v =>
     $('#view-' + v).classList.toggle('hidden', v !== name));
   $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
   if (name === 'progress') renderProgress();
   if (name === 'salud') renderSalud();
+  if (name === 'comida') renderComida();
   window.scrollTo(0, 0);
 }
 
@@ -816,6 +954,15 @@ function init() {
   $('#animToggle').onchange = e => { state.settings.anim = e.target.checked; save(); renderDay(); };
   $('#rotateToggle').onchange = e => { state.settings.autoRotate = e.target.checked; save(); renderDay(); };
   $('#ouraAdaptToggle').onchange = e => { state.settings.ouraAdapt = e.target.checked; save(); renderDay(); };
+  $('#cycleAdaptToggle').onchange = e => { state.settings.cycleAdapt = e.target.checked; save(); renderDay(); };
+
+  // comida
+  $('#equivSearch').oninput = renderEquiv;
+  $('#suppAdd').onclick = addSupp;
+  $('#suppInput').onkeydown = e => { if (e.key === 'Enter') addSupp(); };
+
+  // otras actividades
+  $('#actAdd').onclick = addActivity;
   $('#exportBtn').onclick = exportData;
   $('#importBtn').onclick = () => $('#importFile').click();
   $('#importFile').onchange = e => { if (e.target.files[0]) importData(e.target.files[0]); };

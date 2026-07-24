@@ -63,6 +63,20 @@
     </section>
 
     <section class="card">
+      <h3>🤸 Registrar otra actividad</h3>
+      <p class="muted">¿Hiciste pilates, flow, pádel, cardio…? Registralo (cuenta para tu racha).</p>
+      <div class="act-form">
+        <select id="actType">
+          <option>Pilates</option><option>Yoga / Flow</option><option>Pádel</option>
+          <option>Spinning</option><option>Cardio</option><option>Caminata</option>
+          <option>Funcional</option><option>Natación</option><option>Baile</option><option>Otro</option>
+        </select>
+        <input id="actMin" type="number" inputmode="numeric" placeholder="min">
+        <button class="btn-primary" id="actAdd">Agregar</button>
+      </div>
+    </section>
+
+    <section class="card">
       <h3>🕓 Historial reciente</h3>
       <div id="historyList" class="history"></div>
     </section>
@@ -92,6 +106,10 @@
         <span>💍 Adaptar entrenamiento con Oura</span>
         <input type="checkbox" id="ouraAdaptToggle" checked>
       </label>
+      <label class="row-toggle">
+        <span>🌙 Adaptar entrenamiento con mi ciclo</span>
+        <input type="checkbox" id="cycleAdaptToggle" checked>
+      </label>
     </section>
     <section class="card">
       <h3>Tus datos</h3>
@@ -106,6 +124,49 @@
     <section class="card">
       <h3>Sobre esta app</h3>
       <p class="muted">Rutina de hipertrofia de 4 días por semana, sin abdomen. Los pesos y repeticiones son una guía inicial: ajustalos a tu nivel. Ante dolor o dudas, consultá a un profesional.</p>
+    </section>
+  </main>
+
+  <!-- ================= VISTA: COMIDA ================= -->
+  <main id="view-comida" class="view hidden">
+    <h2 class="view-title">🍎 Comida</h2>
+
+    <section class="card">
+      <h3>Porciones de hoy</h3>
+      <p class="muted">Sumá cada porción que comés. Las metas son las de tu plan.</p>
+      <div id="portionTracker"></div>
+    </section>
+
+    <section class="card">
+      <h3>📋 Porciones por comida (tu plan)</h3>
+      <div class="table-wrap">
+        <table class="ptable">
+          <thead><tr><th>Grupo</th><th>Des.</th><th>Comida</th><th>Cena</th></tr></thead>
+          <tbody>
+            <tr><td>Verduras</td><td>2</td><td>2</td><td>1</td></tr>
+            <tr><td>Frutas</td><td>1</td><td>–</td><td>–</td></tr>
+            <tr><td>Cereales / tubérc. / legum.</td><td>2</td><td>3</td><td>2–3</td></tr>
+            <tr><td>Proteína</td><td>3</td><td>6</td><td>3</td></tr>
+            <tr><td>Grasa y/o semillas</td><td>2</td><td>2</td><td>2</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>⚖️ ¿Cuánto es 1 porción?</h3>
+      <p class="muted">Buscá un alimento y fijate el gramaje/medida de 1 porción.</p>
+      <input id="equivSearch" class="full-input" placeholder="Ej: arroz, jocoque, carne, papa…">
+      <div id="equivList"></div>
+    </section>
+
+    <section class="card">
+      <h3>💊 Vitaminas / Suplementos de hoy</h3>
+      <div class="supp-add">
+        <input id="suppInput" class="full-input" placeholder="Ej: Vitamina D, Omega-3, Magnesio…">
+        <button class="btn-primary" id="suppAdd">Agregar</button>
+      </div>
+      <div id="suppList"></div>
     </section>
   </main>
 
@@ -219,6 +280,7 @@
         <div class="phase-badge" id="phaseBadge"></div>
         <div class="health-detail" id="cycleDetail"></div>
       </div>
+      <p class="muted" style="margin-top:10px">💡 Es una guía: la ciencia del ciclo y el entrenamiento todavía es mixta y cada cuerpo es distinto. Combinalo siempre con cómo te sentís.</p>
     </section>
 
     <section class="card">
@@ -244,6 +306,7 @@
   <!-- ================= NAV INFERIOR ================= -->
   <nav class="bottom-nav">
     <button class="nav-btn active" data-view="routine"><span>🏋️</span>Rutina</button>
+    <button class="nav-btn" data-view="comida"><span>🍎</span>Comida</button>
     <button class="nav-btn" data-view="salud"><span>❤️</span>Salud</button>
     <button class="nav-btn" data-view="progress"><span>📈</span>Progreso</button>
     <button class="nav-btn" data-view="settings"><span>⚙️</span>Ajustes</button>
