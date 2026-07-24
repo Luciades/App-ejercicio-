@@ -21,6 +21,15 @@ Funciona en el celular, se puede instalar como app y guarda tu progreso **solo e
   (sobrecarga progresiva automática).
 - **Temporizador de descanso** con aviso sonoro y vibración.
 - **Progreso**: racha de días, volumen por sesión, historial y **registro de peso corporal**.
+- **❤️ Salud** (datos privados, solo en tu celular):
+  - Perfil con cálculo de **calorías y proteína** según tu objetivo.
+  - 💧 **Control de agua** diario con meta de vasos.
+  - 🌙 **Adaptación al ciclo menstrual**: calcula tu fase y adapta la
+    recomendación de intensidad y consejos de nutrición.
+  - 💍 **Integración con Oura**: trae tu Readiness, Sueño y Pasos, y ajusta
+    la sugerencia del día. Ver [guía de conexión](docs/oura-proxy.md).
+  - Un **banner diario** en la rutina combina tu fase del ciclo + Oura para
+    decirte si es día de empujar o de aflojar.
 - **Calentamiento** sugerido por día.
 - **Respaldo**: exportar/importar tus datos en un archivo.
 - Tema oscuro/claro, funciona **offline** (PWA instalable).

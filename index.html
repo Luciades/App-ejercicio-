@@ -27,6 +27,7 @@
   <main id="view-routine" class="view">
     <div class="day-tabs" id="dayTabs"></div>
     <div class="day-head" id="dayHead"></div>
+    <div id="insightBanner" class="insight hidden"></div>
     <details class="warmup" id="warmupBox">
       <summary>🔥 Calentamiento sugerido</summary>
       <ul id="warmupList"></ul>
@@ -151,6 +152,65 @@
       </div>
       <div class="health-detail" id="healthDetail"></div>
       <p class="muted" style="margin-top:12px">💡 Es una guía general basada en fórmulas estándar, no una indicación médica. Para un plan a medida consultá a un nutricionista o médico.</p>
+    </section>
+
+    <section class="card">
+      <h3>💧 Agua de hoy</h3>
+      <div class="water-row">
+        <button class="w-btn big" id="waterMinus">−</button>
+        <div class="water-count"><span id="waterCount">0</span><span class="water-goal"> / <span id="waterGoal">8</span> vasos</span></div>
+        <button class="w-btn big" id="waterPlus">+</button>
+      </div>
+      <div class="water-dots" id="waterDots"></div>
+      <label class="goal-label" style="margin-top:14px">Meta de vasos por día (1 vaso ≈ 250 ml)
+        <input type="number" id="waterGoalInput" min="1" max="20" value="8">
+      </label>
+    </section>
+
+    <section class="card">
+      <h3>💍 Oura</h3>
+      <div id="ouraConnected" class="hidden">
+        <div class="stat-grid">
+          <div class="stat"><span class="stat-num" id="oReady">–</span><span class="stat-lbl">Readiness</span></div>
+          <div class="stat"><span class="stat-num" id="oSleep">–</span><span class="stat-lbl">Sueño</span></div>
+          <div class="stat"><span class="stat-num" id="oSteps">–</span><span class="stat-lbl">Pasos 👟</span></div>
+        </div>
+        <p class="muted" id="ouraMsg"></p>
+        <div class="btn-row">
+          <button class="btn-ghost" id="ouraRefresh">🔄 Actualizar</button>
+          <button class="btn-ghost" id="ouraForget">Desconectar</button>
+        </div>
+      </div>
+      <div id="ouraSetup">
+        <p class="muted">Pegá tu <strong>Personal Access Token</strong> de Oura. Lo generás gratis en <strong>cloud.ouraring.com → Personal Access Tokens</strong>. Queda guardado solo en tu celular 🔒.</p>
+        <input type="text" id="ouraToken" placeholder="Token de Oura" class="full-input" autocomplete="off">
+        <details class="ex-setup" style="margin-top:8px">
+          <summary>¿Da error al conectar? (proxy)</summary>
+          <p class="muted">Si Oura bloquea la conexión desde el navegador, pegá acá la URL de un proxy (te ayudo a crearlo gratis):</p>
+          <input type="text" id="ouraProxy" placeholder="https://tu-proxy.workers.dev" class="full-input" autocomplete="off">
+        </details>
+        <button class="btn-primary big" id="ouraConnect" style="margin-top:10px">Conectar Oura</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>🌙 Mi ciclo</h3>
+      <div class="profile-grid">
+        <label>Inicio de la última regla
+          <input type="date" id="cStart">
+        </label>
+        <label>Duración del ciclo (días)
+          <input type="number" id="cLen" min="20" max="45" value="28">
+        </label>
+        <label>Días de regla
+          <input type="number" id="cPer" min="2" max="10" value="5">
+        </label>
+      </div>
+      <button class="btn-primary big" id="cSave" style="margin-top:12px">Guardar mi ciclo</button>
+      <div id="cycleResult" class="hidden">
+        <div class="phase-badge" id="phaseBadge"></div>
+        <div class="health-detail" id="cycleDetail"></div>
+      </div>
     </section>
 
     <section class="card">

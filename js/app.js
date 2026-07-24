@@ -16,6 +16,10 @@ const defaultState = () => ({
   history: [],    // [{date, day, focus, volume}]
   bodyweight: [], // [{date, kg}]
   profile: null,  // {sex, age, height, weight, fat, act, goal}
+  water: {},      // { 'YYYY-MM-DD': vasos }
+  waterGoal: 8,
+  cycle: null,    // { start, len, per }
+  oura: null,     // { token, proxy, data }
   settings: { dark: true, sound: true, anim: true, unit: 'lb' },
 });
 
@@ -82,6 +86,7 @@ function renderDay() {
   $$('.day-tab').forEach((b, i) => b.classList.toggle('active', i === currentDay));
 
   wireCards();
+  renderInsight();
 }
 
 function cardHTML(ex) {
@@ -459,6 +464,204 @@ function computeHealth() {
 }
 
 /* ============================================================
+   AGUA — control diario
+   ============================================================ */
+function renderWater() {
+  const goal = state.waterGoal || 8;
+  const count = state.water[todayStr()] || 0;
+  $('#waterCount').textContent = count;
+  $('#waterGoal').textContent = goal;
+  $('#waterGoalInput').value = goal;
+  let dots = '';
+  for (let i = 0; i < goal; i++) dots += `<span class="wdot ${i < count ? 'on' : ''}"></span>`;
+  $('#waterDots').innerHTML = dots;
+}
+function setWater(delta) {
+  const t = todayStr();
+  let c = (state.water[t] || 0) + delta;
+  if (c < 0) c = 0;
+  if (c > 40) c = 40;
+  state.water[t] = c;
+  save();
+  renderWater();
+}
+
+/* ============================================================
+   CICLO — cálculo de fase y consejos
+   ============================================================ */
+const PHASES = {
+  menstrual: { emoji: '🌑', name: 'Menstrual', short: 'la energía puede estar baja, escuchá tu cuerpo',
+    tips: ['Entrená suave o normal según cómo te sientas: si tenés energía, dale.',
+      'Priorizá hierro y proteína (la menstruación baja el hierro).',
+      'Está perfecto tomar un descanso extra si lo necesitás.'] },
+  folicular: { emoji: '🌒', name: 'Folicular', short: 'fuerza y energía en alza, ¡mejor momento para subir peso!',
+    tips: ['Tu mejor ventana para empujar peso e intentar récords personales.',
+      'Aprovechá para marcar 🟢 fácil y que la app te suba la carga.',
+      'Recuperás más rápido: podés meterle intensidad.'] },
+  ovulacion: { emoji: '🌕', name: 'Ovulación', short: 'pico de fuerza; cuidá la técnica en cargas altas',
+    tips: ['Pico de fuerza: buen día para cargas pesadas.',
+      'Calentá bien: hay más laxitud articular, cuidá rodillas y hombros.',
+      'Técnica impecable antes que ego.'] },
+  lutea: { emoji: '🌘', name: 'Lútea', short: 'puede haber más fatiga o hinchazón; volumen moderado',
+    tips: ['Volumen moderado y algo más de descanso entre series.',
+      'Antojos e hinchazón son normales: mantené la proteína, el magnesio puede ayudar.',
+      'No te frustres si baja el rendimiento, es parte del ciclo.'] },
+};
+
+function currentPhase() {
+  const c = state.cycle;
+  if (!c || !c.start) return null;
+  const ms = 86400000;
+  const start = new Date(c.start + 'T00:00:00');
+  const today = new Date(todayStr() + 'T00:00:00');
+  let diff = Math.floor((today - start) / ms);
+  if (diff < 0) return null;
+  const len = c.len || 28, per = c.per || 5;
+  const day = (diff % len) + 1;
+  const ovu = len - 14;
+  let key;
+  if (day <= per) key = 'menstrual';
+  else if (day < ovu - 1) key = 'folicular';
+  else if (day <= ovu + 1) key = 'ovulacion';
+  else key = 'lutea';
+  const next = new Date(start.getTime());
+  const cyclesPassed = Math.floor(diff / len) + 1;
+  next.setDate(next.getDate() + cyclesPassed * len);
+  return Object.assign({ key, day, len, next: next.toISOString().slice(0, 10) }, PHASES[key]);
+}
+
+function loadCycleForm() {
+  const c = state.cycle;
+  if (!c) return;
+  $('#cStart').value = c.start || '';
+  $('#cLen').value = c.len || 28;
+  $('#cPer').value = c.per || 5;
+}
+function saveCycle() {
+  const start = $('#cStart').value;
+  if (!start) { toast('Elegí la fecha de tu última regla 🙂'); return; }
+  state.cycle = { start, len: parseInt($('#cLen').value) || 28, per: parseInt($('#cPer').value) || 5 };
+  save();
+  renderCycle();
+  renderInsight();
+  toast('Ciclo guardado 🌙');
+}
+function renderCycle() {
+  const ph = currentPhase();
+  if (!ph) { $('#cycleResult').classList.add('hidden'); return; }
+  $('#phaseBadge').innerHTML = `${ph.emoji} Fase <strong>${ph.name}</strong> · día ${ph.day} de ${ph.len}`;
+  $('#cycleDetail').innerHTML = `
+    <ul class="health-list">
+      ${ph.tips.map(t => `<li>• ${t}</li>`).join('')}
+      <li>📅 Próxima regla estimada: <strong>${ph.next}</strong> (aproximado).</li>
+    </ul>`;
+  $('#cycleResult').classList.remove('hidden');
+}
+
+/* ============================================================
+   OURA — readiness, sueño y pasos
+   ============================================================ */
+async function ouraGet(path) {
+  const o = state.oura || {};
+  const base = o.proxy ? o.proxy.replace(/\/$/, '') : 'https://api.ouraring.com';
+  const res = await fetch(base + path, { headers: { Authorization: 'Bearer ' + o.token } });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+function daysAgo(n) { const d = new Date(todayStr() + 'T00:00:00'); d.setDate(d.getDate() - n); return d.toISOString().slice(0, 10); }
+
+async function fetchOura() {
+  if (!state.oura || !state.oura.token) return;
+  $('#ouraMsg').textContent = 'Cargando…';
+  try {
+    const q = `?start_date=${daysAgo(6)}&end_date=${todayStr()}`;
+    const [rd, sl, ac] = await Promise.all([
+      ouraGet('/v2/usercollection/daily_readiness' + q),
+      ouraGet('/v2/usercollection/daily_sleep' + q),
+      ouraGet('/v2/usercollection/daily_activity' + q),
+    ]);
+    const last = a => (a && a.data && a.data.length) ? a.data[a.data.length - 1] : null;
+    const r = last(rd), s = last(sl), a = last(ac);
+    state.oura.data = {
+      readiness: r ? r.score : null,
+      sleep: s ? s.score : null,
+      steps: a ? a.steps : null,
+      date: (r || s || a) ? (r || s || a).day : todayStr(),
+    };
+    save();
+    renderOura();
+    renderInsight();
+    toast('Oura actualizada ✅');
+  } catch (e) {
+    renderOura(e);
+  }
+}
+
+function renderOura(err) {
+  const o = state.oura;
+  const connected = o && o.token;
+  $('#ouraConnected').classList.toggle('hidden', !connected);
+  $('#ouraSetup').classList.toggle('hidden', !!connected);
+  if (!connected) return;
+  const d = o.data || {};
+  $('#oReady').textContent = d.readiness != null ? d.readiness : '–';
+  $('#oSleep').textContent = d.sleep != null ? d.sleep : '–';
+  $('#oSteps').textContent = d.steps != null ? d.steps.toLocaleString('es') : '–';
+  if (err) {
+    $('#ouraMsg').innerHTML = '⚠️ No pude conectar con Oura (probablemente Oura bloquea el navegador). Abrí "¿Da error al conectar?" y configuremos un proxy — pedímelo y te lo dejo listo.';
+  } else if (d.date) {
+    $('#ouraMsg').textContent = `Datos del ${d.date}.`;
+  }
+}
+function connectOura() {
+  const token = $('#ouraToken').value.trim();
+  if (!token) { toast('Pegá tu token de Oura'); return; }
+  const proxy = $('#ouraProxy') ? $('#ouraProxy').value.trim() : '';
+  state.oura = { token, proxy, data: null };
+  save();
+  renderOura();
+  fetchOura();
+}
+function forgetOura() {
+  state.oura = null;
+  save();
+  $('#ouraToken').value = '';
+  renderOura();
+  renderInsight();
+  toast('Oura desconectada');
+}
+
+/* ============================================================
+   BANNER DE INSIGHT (rutina) — ciclo + Oura
+   ============================================================ */
+function renderInsight() {
+  const el = $('#insightBanner');
+  if (!el) return;
+  const parts = [];
+  const ph = currentPhase();
+  if (ph) parts.push(`${ph.emoji} <strong>Fase ${ph.name}</strong>: ${ph.short}`);
+  const o = state.oura && state.oura.data;
+  if (o && o.readiness != null) {
+    const t = o.readiness >= 85 ? 'Readiness alto: día para empujar 💪'
+      : o.readiness >= 70 ? 'Readiness ok: entrená normal 👍'
+      : 'Readiness bajo: bajá la intensidad hoy y descansá 😴';
+    parts.push(`💍 <strong>${o.readiness}</strong> · ${t}`);
+  }
+  if (o && o.steps != null) parts.push(`👟 ${o.steps.toLocaleString('es')} pasos hoy`);
+  if (!parts.length) { el.classList.add('hidden'); return; }
+  el.innerHTML = parts.map(p => `<div>${p}</div>`).join('');
+  el.classList.remove('hidden');
+}
+
+function renderSalud() {
+  loadProfileForm();
+  loadCycleForm();
+  renderCycle();
+  renderOura();
+  renderWater();
+}
+
+/* ============================================================
    AJUSTES / datos
    ============================================================ */
 function applySettings() {
@@ -495,7 +698,7 @@ function setView(name) {
     $('#view-' + v).classList.toggle('hidden', v !== name));
   $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
   if (name === 'progress') renderProgress();
-  if (name === 'salud') loadProfileForm();
+  if (name === 'salud') renderSalud();
   window.scrollTo(0, 0);
 }
 
@@ -532,8 +735,24 @@ function init() {
   // progreso
   $('#bwSave').onclick = saveBodyweight;
 
-  // salud
+  // salud · perfil
   $('#pSave').onclick = saveProfile;
+
+  // agua
+  $('#waterPlus').onclick = () => setWater(1);
+  $('#waterMinus').onclick = () => setWater(-1);
+  $('#waterGoalInput').onchange = e => {
+    let g = parseInt(e.target.value) || 8; g = Math.max(1, Math.min(20, g));
+    state.waterGoal = g; save(); renderWater();
+  };
+
+  // ciclo
+  $('#cSave').onclick = saveCycle;
+
+  // oura
+  $('#ouraConnect').onclick = connectOura;
+  $('#ouraRefresh').onclick = fetchOura;
+  $('#ouraForget').onclick = forgetOura;
   $('#bwSave2').onclick = () => {
     const val = parseFloat($('#bwInput2').value);
     if (!val || val <= 0) { toast('Ingresá un peso válido'); return; }
@@ -561,6 +780,10 @@ function init() {
 
   // Animación tipo GIF (alterna frames en sincronía, sin recargar imágenes)
   setInterval(() => { if (state.settings.anim) document.body.classList.toggle('anim-b'); }, 750);
+
+  renderInsight();
+  // Si Oura está conectada, refresca en segundo plano
+  if (state.oura && state.oura.token) fetchOura();
 
   // Service worker (funciona offline)
   if ('serviceWorker' in navigator) {

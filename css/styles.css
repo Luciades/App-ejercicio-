@@ -197,7 +197,26 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 .h-focus { font-weight: 600; }
 .h-vol { color: var(--accent2); font-weight: 600; text-align: right; }
 
+/* ---------- Insight banner (rutina) ---------- */
+.insight { background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 22%, var(--card)), color-mix(in srgb, var(--accent2) 22%, var(--card))); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin: 0 4px 14px; display: flex; flex-direction: column; gap: 6px; }
+.insight div { font-size: .86rem; line-height: 1.4; }
+
 /* ---------- Salud ---------- */
+.full-input { width: 100%; background: var(--card2); border: 1px solid var(--line); border-radius: 10px; color: var(--txt); padding: 11px 10px; font-size: 1rem; margin-top: 8px; }
+
+/* Agua */
+.water-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.w-btn.big { width: 52px; height: 52px; border-radius: 14px; font-size: 1.6rem; }
+.water-count { font-size: 2rem; font-weight: 800; text-align: center; flex: 1; }
+.water-goal { font-size: .9rem; color: var(--muted); font-weight: 600; }
+.water-dots { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; justify-content: center; }
+.wdot { width: 22px; height: 28px; border-radius: 5px 5px 8px 8px; border: 2px solid var(--accent2); background: transparent; transition: .15s; }
+.wdot.on { background: var(--accent2); }
+
+/* Ciclo */
+.phase-badge { margin-top: 14px; background: var(--card2); border-radius: 12px; padding: 12px; text-align: center; font-size: 1rem; }
+
+/* ---------- Ajustes ---------- */
 .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .profile-grid label, .goal-label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--muted); font-weight: 600; }
 .goal-label { margin-top: 14px; }
