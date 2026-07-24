@@ -146,11 +146,14 @@ function weightHint(equip) {
    ============================================================ */
 function renderTabs() {
   const tabs = $('#dayTabs');
-  tabs.innerHTML = ROUTINE.days.map((d, i) =>
-    `<button class="day-tab ${i === currentDay ? 'active' : ''}" data-i="${i}">
-       <span class="dt-emoji">${d.emoji}</span>
+  const doneToday = new Set(state.history.filter(h => h.date === todayStr()).map(h => h.dayId || h.day));
+  tabs.innerHTML = ROUTINE.days.map((d, i) => {
+    const done = doneToday.has(d.id) || doneToday.has(d.name);
+    return `<button class="day-tab ${i === currentDay ? 'active' : ''} ${done ? 'done' : ''}" data-i="${i}">
+       <span class="dt-emoji">${done ? '✅' : d.emoji}</span>
        <span class="dt-name">${d.name}</span>
-     </button>`).join('');
+     </button>`;
+  }).join('');
   $$('.day-tab', tabs).forEach(b => b.onclick = () => { currentDay = +b.dataset.i; renderDay(); });
 }
 
@@ -388,9 +391,10 @@ function finishWorkout() {
   });
   if (doneSets === 0) { toast('Marcá al menos una serie para guardar 💡'); return; }
 
-  state.history.unshift({ date: todayStr(), day: d.name, focus: d.focus, volume: Math.round(volume), sets: doneSets });
+  state.history.unshift({ date: todayStr(), dayId: d.id, day: d.name, focus: d.focus, volume: Math.round(volume), sets: doneSets });
   state.history = state.history.slice(0, 60);
   save();
+  renderTabs();
   toast(`💪 ¡Entrenamiento guardado! ${doneSets} series · ${Math.round(volume).toLocaleString('es')} lb de volumen`);
   setView('progress');
 }
@@ -991,6 +995,7 @@ function setView(name) {
   ['routine', 'comida', 'salud', 'progress', 'settings'].forEach(v =>
     $('#view-' + v).classList.toggle('hidden', v !== name));
   $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+  if (name === 'routine') renderTabs();
   if (name === 'progress') renderProgress();
   if (name === 'salud') renderSalud();
   if (name === 'comida') renderComida();

@@ -71,6 +71,9 @@ h1, h2, h3 { line-height: 1.2; }
 .day-tab .dt-emoji { font-size: 1.25rem; }
 .day-tab .dt-name { font-size: .78rem; font-weight: 600; }
 .day-tab.active { background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; border-color: transparent; box-shadow: var(--shadow); }
+.day-tab.done { border-color: var(--green); }
+.day-tab.done .dt-name { color: var(--green); }
+.day-tab.done.active .dt-name { color: #fff; }
 
 .day-head { margin: 0 4px 12px; }
 .day-head h2 { font-size: 1.25rem; }
