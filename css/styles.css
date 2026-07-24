@@ -253,8 +253,12 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 
 .equiv-sec { margin-top: 14px; }
 .equiv-sec h4 { font-size: .92rem; margin-bottom: 6px; }
-.equiv-row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
-.equiv-q { color: var(--accent2); font-weight: 600; text-align: right; flex-shrink: 0; }
+.equiv-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .86rem; }
+.equiv-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.equiv-name { font-weight: 600; }
+.equiv-q { color: var(--accent2); font-size: .78rem; }
+.equiv-add { flex-shrink: 0; width: 40px; height: 40px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-size: 1.3rem; font-weight: 700; cursor: pointer; line-height: 1; }
+.equiv-add:active { transform: scale(.92); }
 .equiv-note { margin-top: 6px; }
 
 .supp-slot { margin-bottom: 16px; }
