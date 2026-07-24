@@ -22,8 +22,8 @@ const defaultState = () => ({
   oura: null,     // { token, proxy, data }
   portions: {},   // { 'YYYY-MM-DD': { verduras, frutas, cereales, proteina, grasa } }
   activities: [], // [ {date, type, min} ]
-  supps: [],      // ['Vitamina D', ...]
-  suppLog: {},    // { 'YYYY-MM-DD': { 'Vitamina D': true } }
+  supps: { manana: [], tarde: [], noche: [] }, // por momento del día
+  suppLog: {},    // { 'YYYY-MM-DD': { 'manana|Vitamina D': true } }
   settings: { dark: true, sound: true, anim: true, unit: 'lb', autoRotate: true, ouraAdapt: true, cycleAdapt: true },
 });
 
@@ -37,6 +37,10 @@ function load() {
     if (!raw) return defaultState();
     const d = Object.assign(defaultState(), JSON.parse(raw));
     d.settings = Object.assign(defaultState().settings, d.settings || {});
+    // migración: supps de lista plana -> por momento del día
+    if (Array.isArray(d.supps)) d.supps = { manana: d.supps, tarde: [], noche: [] };
+    if (!d.supps || typeof d.supps !== 'object') d.supps = { manana: [], tarde: [], noche: [] };
+    ['manana', 'tarde', 'noche'].forEach(k => { d.supps[k] = d.supps[k] || []; });
     return d;
   } catch { return defaultState(); }
 }
@@ -745,6 +749,7 @@ const PGROUPS = [
   { k: 'frutas', label: '🍎 Frutas', goal: 1 },
   { k: 'cereales', label: '🌾 Cereales / tubérculos / leguminosas', goal: 8 },
   { k: 'proteina', label: '🍗 Proteína', goal: 12 },
+  { k: 'lacteos', label: '🥛 Lácteos (Fage, jocoque…)', goal: 2 },
   { k: 'grasa', label: '🥑 Grasa y/o semillas', goal: 6 },
 ];
 
@@ -754,7 +759,7 @@ const EQUIV = [
   { g: '🍎 Frutas', items: [['Agua de coco', '1½ taza'], ['Blueberries', '1 taza'], ['Cereza', '20 piezas'], ['Dátil medjool', '2 piezas chicas'], ['Durazno', '2 piezas'], ['Frambuesa', '1 taza'], ['Fresa', '17 piezas o 1 taza'], ['Guayaba', '3 piezas'], ['Higo', '2 piezas'], ['Kiwi', '1 pieza'], ['Lima', '3 piezas'], ['Mandarina', '2 piezas'], ['Mango', '½ pieza'], ['Manzana', '1 pieza'], ['Melón', '1 taza'], ['Naranja', '2 piezas'], ['Papaya', '1 taza picada'], ['Pera', '½ pieza'], ['Piña', '1 taza picada'], ['Plátano', '½ pieza'], ['Sandía', '1 taza picada'], ['Toronja', '1 pieza'], ['Uvas', '18 uvas']] },
   { g: '🌾 Cereales / tubérculos / leguminosas', items: [['Arroz blanco cocido', '¼ taza'], ['Arroz integral cocido', '⅓ taza o 70 g'], ['Quinoa cocida', '⅓ taza o 80 g'], ['Avena cocida', '½ taza'], ['Avena en hojuelas', '½ taza'], ['Bagel integral', '½ pieza chica'], ['Bolillo', '½ pieza sin migajón'], ['Camote cocido', '½ camote chico o 70 g'], ['Elote amarillo', '1½ pieza'], ['Elote enlatado', '½ taza'], ['Galletas de arroz', '2 piezas'], ['Harina de avena', '2 cdas'], ['Galletas maría', '5 piezas'], ['Pan árabe integral', '½ pieza chica'], ['Pan integral', '1 rebanada'], ['Pan thins', '1 pieza'], ['Pan de hamburguesa chico', '½ pieza'], ['Papa cocida', '½ pieza'], ['Pasta integral cocida', '⅓ taza o 45 g'], ['Salmas', '1 paquete'], ['Tortilla de maíz', '1 tortilla'], ['Tortilla de nopal', '3 tortillas'], ['Totopos de maíz horneados', '15 totopos o 22 g']] },
   { g: '🍗 Proteína', items: [['Res / pollo / cerdo / pescado', '1 palma o 30 g'], ['Atún en lata', '⅓ de lata (1 lata = 3 porciones)'], ['Carne molida magra', '30 g'], ['Cecina de res', '50 g'], ['Pollo deshebrado', '¼ taza'], ['Proteína en polvo', '⅓ scoop (1 scoop = 3 porciones)'], ['Jamón de pavo', '2 rebanadas'], ['Salmón', '30 g o 1 palma'], ['Huevo', '1 pieza'], ['Sardinas en aceite', '3 piezas'], ['Queso mozzarella fresco', '35 g o 1 reb gruesa'], ['Queso de cabra', '35 g o 2 reb delgadas'], ['Queso feta', '40 g o 2 cdas']] },
-  { g: '🥛 Lácteos', items: [['Kefir', '½ taza'], ['Jocoque', '5 cdas'], ['Yogurt griego sin azúcar', '½ taza o 100 g'], ['Queso cottage', '30 g'], ['Requesón o jocoque', '3 cdas (60 g)'], ['Queso de cabra', '2 cdas'], ['Gouda / chihuahua / manchego', '30 g'], ['Queso panela', '40 g (1 reb)']] },
+  { g: '🥛 Lácteos', items: [['Kefir', '½ taza'], ['Jocoque', '5 cdas'], ['Yogurt griego sin azúcar (Fage)', '½ taza o 100 g'], ['Queso cottage', '30 g'], ['Requesón o jocoque', '3 cdas (60 g)'], ['Queso de cabra', '2 cdas'], ['Gouda / chihuahua / manchego', '30 g'], ['Queso panela', '40 g (1 reb)']], note: 'El Fage 0% aporta ~10 g de proteína por 100 g. En tu plan cuenta como Lácteo, pero suma a tu proteína del día.' },
   { g: '🥑 Grasas', items: [['Aceite (oliva, aguacate, coco…)', '1 cdita o 5 g'], ['Aguacate', '⅓ pieza'], ['Aceituna', '5 piezas'], ['Almendra', '10 piezas'], ['Cacahuate', '14 piezas'], ['Nuez de la india', '7 piezas'], ['Pistache', '18 piezas'], ['Crema de cacahuate', '1 cda o 10 g'], ['Harina de almendra', '2 cdas o 11 g'], ['Mantequilla o ghee', '1½ cdita'], ['Mayonesa', '1 cdita'], ['Mayonesa de aguacate', '½ cda'], ['Bebida de almendra sin azúcar', '2 tazas'], ['Bebida de coco sin azúcar', '1 taza']] },
 ];
 
@@ -794,34 +799,45 @@ function renderEquiv() {
 /* ============================================================
    VITAMINAS / SUPLEMENTOS — check diario
    ============================================================ */
-function addSupp() {
-  const name = $('#suppInput').value.trim();
+const SLOTS = [{ k: 'manana', label: '🌅 Mañana' }, { k: 'tarde', label: '☀️ Tarde' }, { k: 'noche', label: '🌙 Noche' }];
+const escq = s => String(s).replace(/"/g, '&quot;');
+
+function addSupp(slot) {
+  const inp = $('#suppInput-' + slot);
+  const name = inp.value.trim();
   if (!name) return;
-  if (!state.supps.includes(name)) state.supps.push(name);
-  $('#suppInput').value = '';
+  if (!state.supps[slot].includes(name)) state.supps[slot].push(name);
+  inp.value = '';
   save(); renderSupps();
 }
-function delSupp(name) {
-  state.supps = state.supps.filter(s => s !== name);
+function delSupp(slot, name) {
+  state.supps[slot] = state.supps[slot].filter(s => s !== name);
   save(); renderSupps();
 }
-function toggleSupp(name) {
+function toggleSupp(slot, name) {
   const t = todayStr();
   if (!state.suppLog[t]) state.suppLog[t] = {};
-  state.suppLog[t][name] = !state.suppLog[t][name];
+  const key = slot + '|' + name;
+  state.suppLog[t][key] = !state.suppLog[t][key];
   save(); renderSupps();
 }
 function renderSupps() {
-  const t = state.suppLog[todayStr()] || {};
-  $('#suppList').innerHTML = state.supps.length
-    ? state.supps.map(s => `<div class="supp-row ${t[s] ? 'on' : ''}">
-        <button class="supp-check" data-s="${s.replace(/"/g, '&quot;')}">${t[s] ? '✓' : ''}</button>
-        <span class="supp-name">${s}</span>
-        <button class="supp-del" data-d="${s.replace(/"/g, '&quot;')}">🗑️</button>
-      </div>`).join('')
-    : '<p class="muted">Agregá tus vitaminas/suplementos y marcalos cada día.</p>';
-  $$('.supp-check').forEach(b => b.onclick = () => toggleSupp(b.dataset.s));
-  $$('.supp-del').forEach(b => b.onclick = () => delSupp(b.dataset.d));
+  const log = state.suppLog[todayStr()] || {};
+  SLOTS.forEach(s => {
+    const list = state.supps[s.k] || [];
+    $('#suppList-' + s.k).innerHTML = list.length
+      ? list.map(n => {
+        const on = log[s.k + '|' + n];
+        return `<div class="supp-row ${on ? 'on' : ''}">
+          <button class="supp-check" data-slot="${s.k}" data-s="${escq(n)}">${on ? '✓' : ''}</button>
+          <span class="supp-name">${n}</span>
+          <button class="supp-del" data-slot="${s.k}" data-d="${escq(n)}">🗑️</button>
+        </div>`;
+      }).join('')
+      : '<p class="muted supp-empty">Sin suplementos acá.</p>';
+  });
+  $$('.supp-check').forEach(b => b.onclick = () => toggleSupp(b.dataset.slot, b.dataset.s));
+  $$('.supp-del').forEach(b => b.onclick = () => delSupp(b.dataset.slot, b.dataset.d));
 }
 
 function renderComida() { renderPortions(); renderEquiv(); renderSupps(); }
@@ -958,8 +974,8 @@ function init() {
 
   // comida
   $('#equivSearch').oninput = renderEquiv;
-  $('#suppAdd').onclick = addSupp;
-  $('#suppInput').onkeydown = e => { if (e.key === 'Enter') addSupp(); };
+  $$('[data-add]').forEach(b => b.onclick = () => addSupp(b.dataset.add));
+  SLOTS.forEach(s => { $('#suppInput-' + s.k).onkeydown = e => { if (e.key === 'Enter') addSupp(s.k); }; });
 
   // otras actividades
   $('#actAdd').onclick = addActivity;

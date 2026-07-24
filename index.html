@@ -161,12 +161,24 @@
     </section>
 
     <section class="card">
-      <h3>💊 Vitaminas / Suplementos de hoy</h3>
-      <div class="supp-add">
-        <input id="suppInput" class="full-input" placeholder="Ej: Vitamina D, Omega-3, Magnesio…">
-        <button class="btn-primary" id="suppAdd">Agregar</button>
+      <h3>💊 Vitaminas / Suplementos</h3>
+      <p class="muted">Marcá la palomita cuando lo tomes. Se reinicia cada día.</p>
+
+      <div class="supp-slot">
+        <h4>🌅 Mañana</h4>
+        <div id="suppList-manana"></div>
+        <div class="supp-add"><input id="suppInput-manana" class="full-input" placeholder="Agregar a la mañana…"><button class="btn-primary" data-add="manana">＋</button></div>
       </div>
-      <div id="suppList"></div>
+      <div class="supp-slot">
+        <h4>☀️ Tarde</h4>
+        <div id="suppList-tarde"></div>
+        <div class="supp-add"><input id="suppInput-tarde" class="full-input" placeholder="Agregar a la tarde…"><button class="btn-primary" data-add="tarde">＋</button></div>
+      </div>
+      <div class="supp-slot">
+        <h4>🌙 Noche</h4>
+        <div id="suppList-noche"></div>
+        <div class="supp-add"><input id="suppInput-noche" class="full-input" placeholder="Agregar a la noche…"><button class="btn-primary" data-add="noche">＋</button></div>
+      </div>
     </section>
   </main>
 

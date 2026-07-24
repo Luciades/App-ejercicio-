@@ -241,9 +241,12 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 .equiv-q { color: var(--accent2); font-weight: 600; text-align: right; flex-shrink: 0; }
 .equiv-note { margin-top: 6px; }
 
-.supp-add { display: flex; gap: 8px; margin-bottom: 12px; }
+.supp-slot { margin-bottom: 16px; }
+.supp-slot h4 { font-size: .95rem; margin-bottom: 8px; }
+.supp-empty { padding: 2px 0 6px; }
+.supp-add { display: flex; gap: 8px; margin-top: 8px; }
 .supp-add .full-input { margin-top: 0; }
-.supp-add button { flex-shrink: 0; }
+.supp-add button { flex-shrink: 0; min-width: 48px; font-size: 1.2rem; }
 .supp-row { display: flex; align-items: center; gap: 10px; padding: 8px; background: var(--card2); border-radius: 10px; margin-bottom: 8px; }
 .supp-row.on { background: color-mix(in srgb, var(--green) 22%, var(--card2)); }
 .supp-check { width: 34px; height: 34px; border-radius: 9px; border: 2px solid var(--accent2); background: transparent; color: var(--green); font-size: 1.1rem; font-weight: 800; cursor: pointer; flex-shrink: 0; }
