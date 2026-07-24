@@ -612,7 +612,14 @@ function renderOura(err) {
   $('#oSleep').textContent = d.sleep != null ? d.sleep : '–';
   $('#oSteps').textContent = d.steps != null ? d.steps.toLocaleString('es') : '–';
   if (err) {
-    $('#ouraMsg').innerHTML = '⚠️ No pude conectar con Oura (probablemente Oura bloquea el navegador). Abrí "¿Da error al conectar?" y configuremos un proxy — pedímelo y te lo dejo listo.';
+    const m = (err && err.message) || 'error de red';
+    if (/40[13]/.test(m)) {
+      $('#ouraMsg').innerHTML = '⚠️ Token inválido o vencido. Regeneralo en Oura (cloud.ouraring.com) y volvé a pegarlo. (' + m + ')';
+    } else if (/Failed to fetch|NetworkError|Load failed/i.test(m)) {
+      $('#ouraMsg').innerHTML = '⚠️ No llegó al servidor. Revisá la URL del proxy en "¿Da error al conectar?" (debe empezar con https:// y terminar en .workers.dev).';
+    } else {
+      $('#ouraMsg').innerHTML = '⚠️ No pude conectar: ' + m + '. Revisá el token y el proxy.';
+    }
   } else if (d.date) {
     $('#ouraMsg').textContent = `Datos del ${d.date}.`;
   }

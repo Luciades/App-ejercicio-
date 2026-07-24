@@ -23,7 +23,8 @@ body.light {
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { -webkit-text-size-adjust: 100%; }
+html, body { -webkit-text-size-adjust: 100%; max-width: 100%; overflow-x: hidden; }
+input, select, textarea { max-width: 100%; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   background: var(--bg);
@@ -189,7 +190,8 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
   background: var(--card2); border: 1px solid var(--line); border-radius: 10px; color: var(--txt);
   padding: 10px; font-size: 1rem;
 }
-.bw-form input { flex: 1; }
+.bw-form input { flex: 1; min-width: 0; }
+.bw-form select, .bw-form button { flex-shrink: 0; }
 
 .history { display: flex; flex-direction: column; gap: 8px; }
 .hist-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 10px 12px; background: var(--card2); border-radius: 10px; font-size: .82rem; }
@@ -218,11 +220,13 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 
 /* ---------- Ajustes ---------- */
 .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.profile-grid label, .goal-label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--muted); font-weight: 600; }
+.profile-grid label, .goal-label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--muted); font-weight: 600; min-width: 0; }
 .goal-label { margin-top: 14px; }
 .profile-grid input, .profile-grid select, .goal-label select {
+  width: 100%; min-width: 0;
   background: var(--card2); border: 1px solid var(--line); border-radius: 10px; color: var(--txt);
   padding: 11px 10px; font-size: 1rem;
+  text-overflow: ellipsis;
 }
 .health-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
 .health-list li { font-size: .88rem; line-height: 1.5; color: var(--muted); }
