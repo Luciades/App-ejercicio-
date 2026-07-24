@@ -44,7 +44,10 @@ function load() {
     return d;
   } catch { return defaultState(); }
 }
-function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+  catch (e) { /* almacenamiento lleno o modo privado: no rompemos la UI */ }
+}
 
 // Fecha LOCAL (no UTC) para que el día se reinicie a tu medianoche
 function localDate(d) {
@@ -52,7 +55,10 @@ function localDate(d) {
   return `${y}-${m}-${day}`;
 }
 const todayStr = () => localDate(new Date());
-const todayLabel = () => new Date(todayStr() + 'T00:00:00').toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' });
+const todayLabel = () => {
+  try { return new Date(todayStr() + 'T00:00:00').toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' }); }
+  catch { return todayStr(); }
+};
 function lastNDates(n) {
   const base = new Date(todayStr() + 'T00:00:00');
   const arr = [];
