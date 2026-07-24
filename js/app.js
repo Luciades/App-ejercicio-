@@ -20,7 +20,7 @@ const defaultState = () => ({
   waterGoal: 8,
   cycle: null,    // { start, len, per }
   oura: null,     // { token, proxy, data }
-  settings: { dark: true, sound: true, anim: true, unit: 'lb' },
+  settings: { dark: true, sound: true, anim: true, unit: 'lb', autoRotate: true, ouraAdapt: true },
 });
 
 let state = load();
@@ -31,7 +31,9 @@ function load() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
     if (!raw) return defaultState();
-    return Object.assign(defaultState(), JSON.parse(raw));
+    const d = Object.assign(defaultState(), JSON.parse(raw));
+    d.settings = Object.assign(defaultState().settings, d.settings || {});
+    return d;
   } catch { return defaultState(); }
 }
 function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
@@ -39,10 +41,33 @@ function save() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 const todayStr = () => new Date().toISOString().slice(0, 10);
 
 /* ---------- Helpers de datos ---------- */
+// Semana actual (cambia cada lunes aprox.)
+function weekIndex() { return Math.floor((Date.now() + 3 * 86400000) / (7 * 86400000)); }
+
 function chosenId(ex) {
   const sel = state.selected[ex.key];
-  return (sel && ex.opts.includes(sel)) ? sel : ex.opts[0];
+  if (state.settings.autoRotate && ex.opts.length > 1) {
+    // un cambio manual solo pisa la rotación durante esta semana
+    if (sel && typeof sel === 'object' && sel.week === weekIndex() && ex.opts.includes(sel.id)) return sel.id;
+    return ex.opts[weekIndex() % ex.opts.length];
+  }
+  const id = (sel && typeof sel === 'object') ? sel.id : sel;
+  return (id && ex.opts.includes(id)) ? id : ex.opts[0];
 }
+
+// Ajuste del día según Readiness de Oura
+function dailyAdjust() {
+  if (!state.settings.ouraAdapt) return { d: 0, tag: '', note: '' };
+  const o = state.oura && state.oura.data;
+  if (!o || o.readiness == null) return { d: 0, tag: '', note: '' };
+  const r = o.readiness;
+  if (r < 60) return { d: -2, tag: '🔴 Día de recuperación', note: `Readiness ${r}: bajamos el volumen. Menos series, más descanso y técnica prolija.` };
+  if (r < 70) return { d: -1, tag: '🟠 Día suave', note: `Readiness ${r}: 1 serie menos por ejercicio y un poco más de descanso.` };
+  if (r >= 85) return { d: 0, tag: '🟢 Día a tope', note: `Readiness ${r}: gran día para empujar peso e intentar récords.` };
+  return { d: 0, tag: '🟡 Día normal', note: `Readiness ${r}: entrená como siempre.` };
+}
+function effectiveSets(ex) { return Math.max(2, ex.sets + dailyAdjust().d); }
+function adjustedRest(ex) { return dailyAdjust().d < 0 ? Math.round(ex.rest * 1.2) : ex.rest; }
 function weightOf(ex) {
   const id = chosenId(ex);
   return (state.weights[id] != null) ? state.weights[id] : ex.lb;
@@ -75,8 +100,9 @@ function renderTabs() {
 function renderDay() {
   const d = ROUTINE.days[currentDay];
   $('#headerSub').textContent = `${d.name} · ${d.focus}`;
+  const totalSets = d.exercises.reduce((a, e) => a + effectiveSets(e), 0);
   $('#dayHead').innerHTML = `<h2>${d.emoji} ${d.focus}</h2>
-    <p class="muted">${d.exercises.length} ejercicios · ${d.exercises.reduce((a, e) => a + e.sets, 0)} series</p>`;
+    <p class="muted">${d.exercises.length} ejercicios · ${totalSets} series${state.settings.autoRotate ? ' · 🔁 rota cada semana' : ''}</p>`;
 
   // Calentamiento
   $('#warmupList').innerHTML = WARM[d.warm].map(w => `<li>${w}</li>`).join('');
@@ -93,15 +119,20 @@ function cardHTML(ex) {
   const id = chosenId(ex);
   const info = EX[id];
   const w = weightOf(ex);
+  const sets = effectiveSets(ex);
+  const rest = adjustedRest(ex);
   const fbKey = `${todayStr()}|${ex.key}`;
   const fb = state.feedback[fbKey];
   const [f0, f1] = frames(id);
+  const rot = (state.settings.autoRotate && ex.opts.length > 1)
+    ? ` · 🔁 opción ${ex.opts.indexOf(id) + 1}/${ex.opts.length}` : '';
+  const setsChanged = sets !== ex.sets;
 
   // checkboxes de series
   let setsHTML = '';
-  for (let s = 1; s <= ex.sets; s++) {
+  for (let s = 1; s <= sets; s++) {
     const on = state.done[`${todayStr()}|${ex.key}|${s}`];
-    setsHTML += `<button class="set-chip ${on ? 'on' : ''}" data-key="${ex.key}" data-set="${s}" data-rest="${ex.rest}">${s}</button>`;
+    setsHTML += `<button class="set-chip ${on ? 'on' : ''}" data-key="${ex.key}" data-set="${s}" data-rest="${rest}">${s}</button>`;
   }
 
   const fbHTML = `
@@ -127,13 +158,13 @@ function cardHTML(ex) {
       <div class="ex-top">
         <div>
           <h3 class="ex-name">${info.es}</h3>
-          <p class="ex-musc">${info.musc} · ${info.equip}</p>
+          <p class="ex-musc">${info.musc} · ${info.equip}${rot}</p>
         </div>
         <button class="swap-btn" data-key="${ex.key}" title="Cambiar ejercicio">🔄</button>
       </div>
 
       <div class="ex-prescription">
-        <div class="pill"><span class="pill-lbl">Series</span><span class="pill-val">${ex.sets}</span></div>
+        <div class="pill"><span class="pill-lbl">Series</span><span class="pill-val ${setsChanged ? 'adj' : ''}">${sets}${setsChanged ? `<span class="pill-sub">de ${ex.sets}</span>` : ''}</span></div>
         <div class="pill"><span class="pill-lbl">Reps</span><span class="pill-val">${ex.reps}</span></div>
         <div class="pill weight">
           <span class="pill-lbl">Peso (lb)</span>
@@ -155,7 +186,7 @@ function cardHTML(ex) {
         <summary>⚙️ Cómo prepararlo / configurar la máquina</summary>
         <p><strong>Preparación:</strong> ${info.setup}</p>
         <p><strong>Técnica:</strong> ${info.tip}</p>
-        <p>Descanso entre series: <strong>${fmtTime(ex.rest)}</strong></p>
+        <p>Descanso entre series: <strong>${fmtTime(rest)}</strong></p>
         <a class="yt-link" href="${yt(info.es)}" target="_blank" rel="noopener">▶️ Ver demostración en YouTube</a>
       </details>
 
@@ -240,11 +271,11 @@ function openSwap(key) {
     </button>`;
   }).join('');
   $$('.swap-opt').forEach(b => b.onclick = () => {
-    state.selected[key] = b.dataset.id;
+    state.selected[key] = state.settings.autoRotate ? { week: weekIndex(), id: b.dataset.id } : b.dataset.id;
     save();
     closeSwap();
     renderDay();
-    toast('Ejercicio cambiado ✅');
+    toast(state.settings.autoRotate ? 'Cambiado por esta semana ✅' : 'Ejercicio cambiado ✅');
   });
   $('#swapModal').classList.remove('hidden');
 }
@@ -654,15 +685,11 @@ function renderInsight() {
   const el = $('#insightBanner');
   if (!el) return;
   const parts = [];
+  const adj = dailyAdjust();
+  if (adj.tag) parts.push(`💍 <strong>${adj.tag}</strong>: ${adj.note}`);
   const ph = currentPhase();
   if (ph) parts.push(`${ph.emoji} <strong>Fase ${ph.name}</strong>: ${ph.short}`);
   const o = state.oura && state.oura.data;
-  if (o && o.readiness != null) {
-    const t = o.readiness >= 85 ? 'Readiness alto: día para empujar 💪'
-      : o.readiness >= 70 ? 'Readiness ok: entrená normal 👍'
-      : 'Readiness bajo: bajá la intensidad hoy y descansá 😴';
-    parts.push(`💍 <strong>${o.readiness}</strong> · ${t}`);
-  }
   if (o && o.steps != null) parts.push(`👟 ${o.steps.toLocaleString('es')} pasos hoy`);
   if (!parts.length) { el.classList.add('hidden'); return; }
   el.innerHTML = parts.map(p => `<div>${p}</div>`).join('');
@@ -685,6 +712,8 @@ function applySettings() {
   $('#darkToggle').checked = state.settings.dark;
   $('#soundToggle').checked = state.settings.sound;
   $('#animToggle').checked = state.settings.anim;
+  $('#rotateToggle').checked = state.settings.autoRotate;
+  $('#ouraAdaptToggle').checked = state.settings.ouraAdapt;
 }
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
@@ -785,6 +814,8 @@ function init() {
   $('#darkToggle').onchange = e => { state.settings.dark = e.target.checked; save(); applySettings(); };
   $('#soundToggle').onchange = e => { state.settings.sound = e.target.checked; save(); };
   $('#animToggle').onchange = e => { state.settings.anim = e.target.checked; save(); renderDay(); };
+  $('#rotateToggle').onchange = e => { state.settings.autoRotate = e.target.checked; save(); renderDay(); };
+  $('#ouraAdaptToggle').onchange = e => { state.settings.ouraAdapt = e.target.checked; save(); renderDay(); };
   $('#exportBtn').onclick = exportData;
   $('#importBtn').onclick = () => $('#importFile').click();
   $('#importFile').onchange = e => { if (e.target.files[0]) importData(e.target.files[0]); };

@@ -30,6 +30,12 @@ Funciona en el celular, se puede instalar como app y guarda tu progreso **solo e
     la sugerencia del día. Ver [guía de conexión](docs/oura-proxy.md).
   - Un **banner diario** en la rutina combina tu fase del ciclo + Oura para
     decirte si es día de empujar o de aflojar.
+- 🔁 **Rotación semanal**: cada semana la app usa una variante distinta de
+  cada ejercicio (misma zona muscular) para dar variedad. Se puede apagar en
+  Ajustes.
+- 🤖 **Adaptación con Oura**: según tu Readiness del día, la app ajusta el
+  entrenamiento de verdad (baja series y sube el descanso si venís cansada,
+  o te habilita a empujar si estás a tope).
 - **Calentamiento** sugerido por día.
 - **Respaldo**: exportar/importar tus datos en un archivo.
 - Tema oscuro/claro, funciona **offline** (PWA instalable).

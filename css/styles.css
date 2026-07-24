@@ -118,6 +118,8 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 .pill-lbl { display: block; font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
 .pill-val { display: block; font-size: 1.15rem; font-weight: 800; margin-top: 2px; }
 .pill.weight { flex: 1.3; }
+.pill-val.adj { color: var(--accent2); }
+.pill-sub { display: block; font-size: .6rem; color: var(--muted); font-weight: 600; }
 .w-ctrl { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 2px; }
 .w-btn {
   width: 30px; height: 30px; border-radius: 9px; border: none; cursor: pointer;
