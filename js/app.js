@@ -563,7 +563,11 @@ function renderCycle() {
    ============================================================ */
 async function ouraGet(path) {
   const o = state.oura || {};
-  const base = o.proxy ? o.proxy.replace(/\/$/, '') : 'https://api.ouraring.com';
+  let base = 'https://api.ouraring.com';
+  if (o.proxy && o.proxy.trim()) {
+    base = o.proxy.trim().replace(/\/$/, '');
+    if (!/^https?:\/\//i.test(base)) base = 'https://' + base;
+  }
   const res = await fetch(base + path, { headers: { Authorization: 'Bearer ' + o.token } });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return res.json();
