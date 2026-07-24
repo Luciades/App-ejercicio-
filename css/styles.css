@@ -197,6 +197,19 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
 .h-focus { font-weight: 600; }
 .h-vol { color: var(--accent2); font-weight: 600; text-align: right; }
 
+/* ---------- Salud ---------- */
+.profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.profile-grid label, .goal-label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; color: var(--muted); font-weight: 600; }
+.goal-label { margin-top: 14px; }
+.profile-grid input, .profile-grid select, .goal-label select {
+  background: var(--card2); border: 1px solid var(--line); border-radius: 10px; color: var(--txt);
+  padding: 11px 10px; font-size: 1rem;
+}
+.health-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+.health-list li { font-size: .88rem; line-height: 1.5; color: var(--muted); }
+.health-list strong { color: var(--txt); }
+.health-detail { margin-top: 8px; }
+
 /* ---------- Ajustes ---------- */
 .row-toggle { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .row-toggle:last-child { border-bottom: none; }
@@ -215,7 +228,7 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
   background: var(--bg2); border-top: 1px solid var(--line);
   padding: 8px 0 max(8px, env(safe-area-inset-bottom));
 }
-.nav-btn { background: none; border: none; color: var(--muted); font-size: .72rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 18px; }
+.nav-btn { background: none; border: none; color: var(--muted); font-size: .72rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 12px; }
 .nav-btn span { font-size: 1.3rem; }
 .nav-btn.active { color: var(--accent2); }
 

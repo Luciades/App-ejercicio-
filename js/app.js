@@ -15,6 +15,7 @@ const defaultState = () => ({
   feedback: {},   // "fecha|key" -> 'facil'|'medio'|'dificil'
   history: [],    // [{date, day, focus, volume}]
   bodyweight: [], // [{date, kg}]
+  profile: null,  // {sex, age, height, weight, fat, act, goal}
   settings: { dark: true, sound: true, anim: true, unit: 'lb' },
 });
 
@@ -388,6 +389,76 @@ function saveBodyweight() {
 }
 
 /* ============================================================
+   SALUD — perfil, calorías y proteína
+   ============================================================ */
+const ACT_LBL = { '1.2': 'Sedentaria', '1.375': 'Ligera', '1.55': 'Moderada', '1.725': 'Alta' };
+
+function loadProfileForm() {
+  const p = state.profile;
+  if (!p) return;
+  $('#pSex').value = p.sex; $('#pAge').value = p.age; $('#pHeight').value = p.height;
+  $('#pWeight').value = p.weight; $('#pFat').value = p.fat || ''; $('#pAct').value = p.act;
+  $('#pGoal').value = p.goal;
+  computeHealth();
+}
+
+function saveProfile() {
+  const p = {
+    sex: $('#pSex').value,
+    age: parseFloat($('#pAge').value),
+    height: parseFloat($('#pHeight').value),
+    weight: parseFloat($('#pWeight').value),
+    fat: parseFloat($('#pFat').value) || null,
+    act: $('#pAct').value,
+    goal: $('#pGoal').value,
+  };
+  if (!p.age || !p.height || !p.weight) { toast('Completá edad, altura y peso 🙂'); return; }
+  state.profile = p;
+  save();
+  computeHealth();
+  toast('¡Objetivos calculados! ❤️');
+}
+
+function computeHealth() {
+  const p = state.profile;
+  if (!p || !p.weight || !p.height || !p.age) return;
+
+  // TMB: Katch-McArdle si hay % grasa, si no Mifflin-St Jeor
+  let bmr;
+  if (p.fat) {
+    const lbm = p.weight * (1 - p.fat / 100);
+    bmr = 370 + 21.6 * lbm;
+  } else {
+    bmr = 10 * p.weight + 6.25 * p.height - 5 * p.age + (p.sex === 'M' ? 5 : -161);
+  }
+  const maint = bmr * parseFloat(p.act);
+
+  let kcal, deficitTxt, prPerKg;
+  if (p.goal === 'perder') { kcal = maint - 450; deficitTxt = 'déficit para bajar grasa'; prPerKg = 2.0; }
+  else if (p.goal === 'ganar') { kcal = maint + 250; deficitTxt = 'superávit suave para ganar músculo'; prPerKg = 1.8; }
+  else { kcal = maint - 250; deficitTxt = 'déficit leve para recomposición'; prPerKg = 1.9; }
+
+  const imc = p.weight / Math.pow(p.height / 100, 2);
+  const protein = Math.round(p.weight * prPerKg);
+  const prLow = Math.round(p.weight * 1.6), prHigh = Math.round(p.weight * 2.2);
+
+  $('#rProtein').textContent = protein;
+  $('#rKcal').textContent = Math.round(kcal / 10) * 10;
+  $('#rImc').textContent = imc.toFixed(1);
+
+  let imcCat = imc < 18.5 ? 'bajo' : imc < 25 ? 'normal' : imc < 30 ? 'algo elevado' : 'alto';
+  $('#healthDetail').innerHTML = `
+    <ul class="health-list">
+      <li>🔥 <strong>Mantenimiento:</strong> ~${Math.round(maint / 10) * 10} kcal/día · tu objetivo es <strong>${Math.round(kcal / 10) * 10} kcal</strong> (${deficitTxt}).</li>
+      <li>🥩 <strong>Proteína:</strong> apuntá a <strong>${protein} g/día</strong> (rango ${prLow}–${prHigh} g). Repartila en tus comidas.</li>
+      <li>📊 <strong>IMC:</strong> ${imc.toFixed(1)} (${imcCat}). El IMC no distingue músculo de grasa, es solo una referencia.</li>
+      <li>💪 <strong>Tu rutina de hipertrofia</strong> es ideal para tu objetivo: mantené la constancia 4 días y la sobrecarga progresiva (el semáforo te ayuda).</li>
+      <li>🚶‍♀️ Sumar pasos diarios y dormir bien acelera los resultados.</li>
+    </ul>`;
+  $('#healthResults').classList.remove('hidden');
+}
+
+/* ============================================================
    AJUSTES / datos
    ============================================================ */
 function applySettings() {
@@ -420,10 +491,11 @@ function importData(file) {
    NAVEGACIÓN / UI global
    ============================================================ */
 function setView(name) {
-  ['routine', 'progress', 'settings'].forEach(v =>
+  ['routine', 'salud', 'progress', 'settings'].forEach(v =>
     $('#view-' + v).classList.toggle('hidden', v !== name));
   $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === name));
   if (name === 'progress') renderProgress();
+  if (name === 'salud') loadProfileForm();
   window.scrollTo(0, 0);
 }
 
@@ -459,6 +531,20 @@ function init() {
 
   // progreso
   $('#bwSave').onclick = saveBodyweight;
+
+  // salud
+  $('#pSave').onclick = saveProfile;
+  $('#bwSave2').onclick = () => {
+    const val = parseFloat($('#bwInput2').value);
+    if (!val || val <= 0) { toast('Ingresá un peso válido'); return; }
+    let kg = $('#bwUnit2').value === 'lb' ? +(val / 2.20462).toFixed(1) : val;
+    state.bodyweight = state.bodyweight.filter(b => b.date !== todayStr());
+    state.bodyweight.push({ date: todayStr(), kg });
+    state.bodyweight.sort((a, b) => a.date.localeCompare(b.date));
+    save();
+    $('#bwInput2').value = '';
+    toast('Peso guardado ⚖️');
+  };
 
   // ajustes
   $('#darkToggle').onchange = e => { state.settings.dark = e.target.checked; save(); applySettings(); };
