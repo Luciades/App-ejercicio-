@@ -1,0 +1,15 @@
+{
+  "name": "Mi Rutina de Hipertrofia",
+  "short_name": "Mi Rutina",
+  "description": "Rutina de hipertrofia de 4 días, sin abdomen, con demostraciones, pesos, repeticiones y semáforo de esfuerzo.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1220",
+  "theme_color": "#0f1220",
+  "lang": "es",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
