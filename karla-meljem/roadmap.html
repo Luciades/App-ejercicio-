@@ -153,6 +153,22 @@
   }
   .hyp b { display: block; color: var(--accent); font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: .08em; margin-bottom: 3px; }
 
+  /* ── Barra de avance ── */
+  .avance {
+    margin-top: 30px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap; justify-content: space-between;
+  }
+  .avance .av-txt { font-size: 13px; color: var(--ink2); }
+  .avance .av-txt b { color: var(--ink); font-weight: 600; }
+  .avance .mono { color: var(--ink2); display: block; margin-bottom: 3px; }
+  #av-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+  .av-btn {
+    font: inherit; font-size: 12.5px; padding: 7px 14px; border-radius: 99px; cursor: pointer;
+    border: 1px solid var(--accent); background: var(--accent); color: var(--card);
+  }
+  .av-btn.ghost { background: transparent; color: var(--ink2); border-color: var(--line); }
+
   /* ── Tabs ── */
   .tabs {
     position: sticky; top: 0; z-index: 20; margin-top: 40px;
@@ -435,6 +451,19 @@
       </div>
     </div>
   </section>
+
+  <!-- Barra de avance -->
+  <div class="avance">
+    <div class="av-txt">
+      <span class="mono">Avance</span>
+      Línea base oficial al <b id="av-fecha">—</b> · <span id="av-estado">sin cambios tuyos</span>.
+      Marca tus tareas y mándale el avance a Lucía para que quede en el repo.
+    </div>
+    <div id="av-acciones" hidden>
+      <button class="av-btn" id="av-copiar" type="button">Copiar mi avance</button>
+      <button class="av-btn ghost" id="av-reset" type="button">Volver a la línea base</button>
+    </div>
+  </div>
 
   <!-- Tabs -->
   <nav class="tabs" role="tablist" aria-label="Proyectos">
@@ -1018,30 +1047,79 @@
     });
   }));
 
-  // ── Checklist con persistencia local ──
-  const STORE = 'km-roadmap-v1';
-  const saved = JSON.parse(localStorage.getItem(STORE) || '{}');
+  /* ─────────────────────────────────────────────────────────────
+     AVANCE OFICIAL — línea base compartida
+     Vive en el repo, así que tiene historial y todos ven lo mismo.
+     Para actualizarla: agregar los ids de las tareas hechas y la
+     fecha, hacer commit y republicar. El avance local de cada
+     persona se pinta encima sin borrar esto.
+     ───────────────────────────────────────────────────────────── */
+  const AVANCE_OFICIAL = {
+    actualizado: '29 de julio de 2026',
+    hechas: []   // ej: ['ci1', 'ag1', 'bo2']
+  };
+
+  // ── Checklist: línea base compartida + avance local por persona ──
+  const STORE = 'km-roadmap-v2';
+  const local = JSON.parse(localStorage.getItem(STORE) || '{}');
+  const base = new Set(AVANCE_OFICIAL.hechas);
   const tasks = document.querySelectorAll('.task');
-  function refreshProgress() {
-    ['agencia', 'bodas'].forEach(p => {
-      const all = document.querySelectorAll(`.task[data-proj="${p}"]`);
-      const done = document.querySelectorAll(`.task[data-proj="${p}"].done`);
-      const el = document.querySelector(`[data-progress="${p}"]`);
-      if (el) el.textContent = `${done.length} / ${all.length} tareas`;
+
+  const estaHecha = id => (id in local) ? local[id] : base.has(id);
+
+  function pintar() {
+    tasks.forEach(t => {
+      const hecha = estaHecha(t.dataset.id);
+      t.classList.toggle('done', hecha);
+      t.querySelector('input[type="checkbox"]').checked = hecha;
     });
+    ['agencia', 'bodas'].forEach(p => {
+      const all = [...document.querySelectorAll(`.task[data-proj="${p}"]`)];
+      const done = all.filter(t => estaHecha(t.dataset.id)).length;
+      const el = document.querySelector(`[data-progress="${p}"]`);
+      if (el) el.textContent = `${done} / ${all.length} tareas`;
+    });
+    const difs = Object.keys(local).filter(id => local[id] !== base.has(id)).length;
+    const av = document.getElementById('av-estado');
+    if (av) av.textContent = difs
+      ? `${difs} cambio${difs > 1 ? 's' : ''} tuyo${difs > 1 ? 's' : ''} sin enviar`
+      : 'sin cambios tuyos';
+    const acc = document.getElementById('av-acciones');
+    if (acc) acc.hidden = !difs;
   }
+
   tasks.forEach(t => {
-    const cb = t.querySelector('input[type="checkbox"]');
-    const id = t.dataset.id;
-    if (saved[id]) { cb.checked = true; t.classList.add('done'); }
-    cb.addEventListener('change', () => {
-      t.classList.toggle('done', cb.checked);
-      saved[id] = cb.checked;
-      localStorage.setItem(STORE, JSON.stringify(saved));
-      refreshProgress();
+    t.querySelector('input[type="checkbox"]').addEventListener('change', e => {
+      local[t.dataset.id] = e.target.checked;
+      localStorage.setItem(STORE, JSON.stringify(local));
+      pintar();
     });
   });
-  refreshProgress();
+
+  document.getElementById('av-copiar')?.addEventListener('click', async btn => {
+    const hechas = [...tasks].map(t => t.dataset.id).filter(estaHecha);
+    const texto = `Avance del roadmap · ${AVANCE_OFICIAL.actualizado} (línea base)\n`
+      + `Tareas hechas: ${hechas.join(', ') || '(ninguna)'}\n`
+      + `Total: ${hechas.length} de ${tasks.length}`;
+    const b = document.getElementById('av-copiar');
+    try {
+      await navigator.clipboard.writeText(texto);
+      b.textContent = '✓ Copiado — mándalo a Lucía';
+    } catch {
+      b.textContent = 'No se pudo copiar';
+    }
+    setTimeout(() => { b.textContent = 'Copiar mi avance'; }, 2600);
+  });
+
+  document.getElementById('av-reset')?.addEventListener('click', () => {
+    Object.keys(local).forEach(k => delete local[k]);
+    localStorage.removeItem(STORE);
+    pintar();
+  });
+
+  const avFecha = document.getElementById('av-fecha');
+  if (avFecha) avFecha.textContent = AVANCE_OFICIAL.actualizado;
+  pintar();
 
   // ── Corrida financiera ──
   const mxn = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 });
