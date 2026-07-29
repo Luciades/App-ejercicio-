@@ -1,0 +1,545 @@
+<title>Auditoría de pauta · @karlasommelier</title>
+<style>
+  :root {
+    --paper: #F4EFE6; --card: #FBF8F0; --ink: #22303A; --ink2: #5D6B76;
+    --line: rgba(34,48,58,.16); --accent: #B4522B; --accent-soft: rgba(180,82,43,.09);
+    --panel: #26343F; --panel-ink: #F0EADD; --panel-muted: #9AA7B0;
+    --s1: #C05A32; --s1-soft: rgba(192,90,50,.13);
+    --s2: #2C6FC0; --s2-soft: rgba(44,111,192,.11);
+    --bad: #A33A2A; --good: #4A7A52;
+    --track: rgba(34,48,58,.09);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #151E25; --card: #1C262E; --ink: #EAE3D5; --ink2: #97A3AC;
+      --line: rgba(234,227,213,.15); --accent: #D97B52; --accent-soft: rgba(217,123,82,.13);
+      --panel: #10181F; --panel-ink: #EAE3D5; --panel-muted: #8A97A1;
+      --s1: #CE6B41; --s1-soft: rgba(206,107,65,.16);
+      --s2: #4E86C6; --s2-soft: rgba(78,134,198,.16);
+      --bad: #D9705C; --good: #6FAE77;
+      --track: rgba(234,227,213,.1);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper:#F4EFE6;--card:#FBF8F0;--ink:#22303A;--ink2:#5D6B76;--line:rgba(34,48,58,.16);
+    --accent:#B4522B;--accent-soft:rgba(180,82,43,.09);--panel:#26343F;--panel-ink:#F0EADD;
+    --panel-muted:#9AA7B0;--s1:#C05A32;--s1-soft:rgba(192,90,50,.13);--s2:#2C6FC0;
+    --s2-soft:rgba(44,111,192,.11);--bad:#A33A2A;--good:#4A7A52;--track:rgba(34,48,58,.09);
+  }
+  :root[data-theme="dark"] {
+    --paper:#151E25;--card:#1C262E;--ink:#EAE3D5;--ink2:#97A3AC;--line:rgba(234,227,213,.15);
+    --accent:#D97B52;--accent-soft:rgba(217,123,82,.13);--panel:#10181F;--panel-ink:#EAE3D5;
+    --panel-muted:#8A97A1;--s1:#CE6B41;--s1-soft:rgba(206,107,65,.16);--s2:#4E86C6;
+    --s2-soft:rgba(78,134,198,.16);--bad:#D9705C;--good:#6FAE77;--track:rgba(234,227,213,.1);
+  }
+
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) { *,*::before,*::after { transition:none!important; animation:none!important; } }
+  body {
+    margin:0; background:var(--paper); color:var(--ink); font-size:15.5px; line-height:1.55;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:980px; margin:0 auto; padding:0 24px 80px; }
+  .serif { font-family:Georgia,"Iowan Old Style",Palatino,serif; }
+  .mono { font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; }
+
+  /* Letterhead */
+  .letterhead { padding-top:28px; }
+  .topline { display:flex; justify-content:space-between; gap:16px; color:var(--ink2); }
+  .brandrow { display:flex; justify-content:space-between; align-items:center; padding:18px 0 16px; border-bottom:1px solid var(--ink); margin-top:14px; }
+  .wordmark { display:flex; align-items:center; gap:10px; }
+  .wordmark .dot { width:26px;height:26px;border-radius:50%;border:1.5px solid var(--ink);display:inline-flex;align-items:center;justify-content:center; }
+  .wordmark .dot::after { content:"";width:7px;height:11px;border-radius:50% 50% 4px 4px;background:var(--accent); }
+  .wordmark .name { font-size:21px; letter-spacing:.02em; }
+  .wordmark small { color:var(--ink2); letter-spacing:.22em; font-size:9.5px; }
+  .client { text-align:right; }
+  .client .serif { font-size:19px; }
+  .client .mono { color:var(--ink2); margin-top:3px; }
+
+  /* Hero */
+  .hero { padding:44px 0 8px; }
+  .eyebrow { display:flex; align-items:center; gap:12px; color:var(--ink2); }
+  .eyebrow::before { content:""; width:34px; height:1px; background:var(--accent); }
+  h1 { font-size:clamp(33px,5.2vw,50px); line-height:1.08; font-weight:400; margin:18px 0 20px; text-wrap:balance; letter-spacing:-.01em; }
+  h1 em { color:var(--accent); font-style:italic; }
+  .lede { max-width:64ch; color:var(--ink2); font-size:16.5px; margin:0; }
+  .lede strong { color:var(--ink); font-weight:600; }
+
+  /* Hero stats */
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:32px 0 0; }
+  .kpi { background:var(--card); border:1px solid var(--line); border-radius:11px; padding:15px 17px; }
+  .kpi .mono { color:var(--ink2); }
+  .kpi b { display:block; font-family:Georgia,serif; font-weight:400; font-size:27px; margin-top:5px; font-variant-numeric:tabular-nums; letter-spacing:-.01em; }
+  .kpi span { display:block; color:var(--ink2); font-size:12px; margin-top:2px; }
+  .kpi.flag b { color:var(--bad); }
+  .kpi.hl b { color:var(--accent); }
+
+  /* Sections */
+  section { margin-top:60px; }
+  .sec-head { display:flex; align-items:baseline; gap:16px; border-top:1px solid var(--ink); padding-top:18px; }
+  .sec-num { font-size:30px; color:var(--accent); font-family:Georgia,serif; }
+  .sec-head h2 { font-size:25px; font-weight:400; margin:0; }
+  .sec-note { color:var(--ink2); max-width:70ch; margin:12px 0 0; }
+  h3.sub { font-size:19px; font-weight:400; font-family:Georgia,serif; margin:34px 0 4px; }
+  .sub-note { color:var(--ink2); font-size:14px; margin:4px 0 0; max-width:70ch; }
+
+  /* Charts */
+  figure { margin:22px 0 0; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; }
+  figcaption { color:var(--ink2); font-size:12.5px; margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
+  .ch-title { font-weight:650; font-size:14.5px; margin-bottom:3px; }
+  .ch-sub { color:var(--ink2); font-size:12.5px; margin-bottom:16px; }
+  .legend { display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px; }
+  .lg { display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink2); }
+  .lg i { width:11px; height:11px; border-radius:3px; display:inline-block; }
+
+  .rows { display:grid; gap:9px; }
+  .row { display:grid; grid-template-columns:132px 1fr; gap:12px; align-items:center; }
+  .row .lbl { font-size:12.5px; color:var(--ink2); text-align:right; line-height:1.3; }
+  .row .lbl b { display:block; color:var(--ink); font-weight:600; font-size:13px; }
+  .barwrap { display:flex; align-items:center; gap:9px; min-width:0; }
+  .bar { height:21px; border-radius:0 4px 4px 0; min-width:3px; }
+  .bar.a { background:var(--s1); } .bar.b { background:var(--s2); }
+  .bar.neg { background:var(--bad); } .bar.pos { background:var(--good); }
+  .val { font-size:12.5px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .val.dim { color:var(--ink2); }
+
+  /* grouped bars */
+  .grp { display:grid; gap:3px; }
+  .grp .row { grid-template-columns:132px 1fr; }
+  .grp + .grp { margin-top:13px; }
+
+  /* Table */
+  .tbl-scroll { overflow-x:auto; margin-top:22px; border:1px solid var(--line); border-radius:12px; background:var(--card); }
+  table { border-collapse:collapse; width:100%; min-width:660px; font-size:13.5px; }
+  th { background:var(--panel); color:var(--panel-ink); font-weight:500; text-align:left; padding:11px 14px; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; font-family:ui-monospace,Menlo,monospace; white-space:nowrap; }
+  td { padding:10px 14px; border-top:1px solid var(--line); vertical-align:top; }
+  tbody tr:nth-child(even) { background:var(--accent-soft); }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  td.bad { color:var(--bad); font-weight:600; }
+  td.good { color:var(--good); font-weight:600; }
+
+  /* Finding cards */
+  .findings { display:grid; gap:12px; margin-top:22px; }
+  .find { background:var(--card); border:1px solid var(--line); border-left:3px solid var(--s1); border-radius:0 11px 11px 0; padding:17px 20px; }
+  .find.ok { border-left-color:var(--good); }
+  .find .mono { color:var(--ink2); }
+  .find h4 { font-size:17px; font-weight:400; font-family:Georgia,serif; margin:6px 0 8px; }
+  .find p { margin:0; color:var(--ink2); font-size:14px; }
+  .find p + p { margin-top:8px; }
+  .find p b { color:var(--ink); }
+  .find .num-inline { font-family:Georgia,serif; color:var(--accent); font-size:15px; }
+
+  /* Panel block */
+  .dark-panel { margin-top:26px; background:var(--panel); color:var(--panel-ink); border-radius:12px; padding:24px 26px; }
+  .dark-panel .mono { color:var(--panel-muted); }
+  .dark-panel h3 { font-family:Georgia,serif; font-weight:400; font-size:21px; margin:8px 0 10px; }
+  .dark-panel h3 em { color:var(--accent); }
+  .dark-panel p { color:var(--panel-muted); margin:0; font-size:14.5px; max-width:72ch; }
+  .dark-panel p strong { color:var(--panel-ink); }
+  .dp-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:14px; margin-top:20px; padding-top:18px; border-top:1px solid rgba(255,255,255,.13); }
+  .dp-stats div .mono { display:block; }
+  .dp-stats div b { font-family:Georgia,serif; font-weight:400; font-size:24px; display:block; margin-top:4px; font-variant-numeric:tabular-nums; }
+
+  /* Direction / recommendations */
+  .steps { counter-reset:st; display:grid; gap:0; margin-top:22px; }
+  .step { display:grid; grid-template-columns:38px 1fr; gap:14px; padding:17px 4px; border-bottom:1px solid var(--line); }
+  .step::before { counter-increment:st; content:counter(st,decimal-leading-zero); font-family:Georgia,serif; font-size:19px; color:var(--accent); }
+  .step h4 { margin:0 0 5px; font-size:16px; font-weight:600; }
+  .step p { margin:0; color:var(--ink2); font-size:14px; }
+  .step .tag { display:inline-block; margin-top:8px; font-family:ui-monospace,Menlo,monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; border:1px solid var(--line); color:var(--ink2); border-radius:99px; padding:3px 9px; }
+
+  .pill-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:18px; }
+  .pill { border:1px dashed var(--accent); color:var(--accent); border-radius:99px; padding:5px 14px; font-size:12.5px; }
+
+  .note-box { margin-top:20px; border-left:3px solid var(--accent); background:var(--accent-soft); border-radius:0 10px 10px 0; padding:15px 19px; font-size:14px; }
+  .note-box .mono { color:var(--accent); display:block; margin-bottom:5px; }
+  .note-box p { margin:0; } .note-box p + p { margin-top:8px; }
+
+  footer { margin-top:70px; border-top:1px solid var(--ink); padding:16px 0 8px; display:flex; justify-content:space-between; gap:12px; color:var(--ink2); flex-wrap:wrap; }
+
+  @media (max-width:620px) {
+    .row { grid-template-columns:104px 1fr; }
+    .row .lbl { font-size:11.5px; }
+    .topline span:last-child { display:none; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="letterhead">
+    <div class="topline mono">
+      <span>Auditoría de pauta — @karlasommelier</span>
+      <span>Amura Partners · Jul 2026</span>
+    </div>
+    <div class="brandrow">
+      <div class="wordmark">
+        <span class="dot" aria-hidden="true"></span>
+        <span class="name serif">amura <small class="mono">Partners</small></span>
+      </div>
+      <div class="client">
+        <div class="serif">Karla Meljem</div>
+        <div class="mono">Auditoría · Instagram Ads</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <p class="eyebrow mono">Auditoría de pauta · Enero – Mayo 2026</p>
+    <h1 class="serif">Se compró <em>audiencia</em>,<br>no se compraron clientes.</h1>
+    <p class="lede">Revisión de <strong>26 anuncios promocionados desde la app de Instagram</strong> en la cuenta @karlasommelier. La conclusión corta: el contenido funciona y la cuenta tiene activo real, pero la pauta se configuró sin objetivo de negocio, sin destino de conversión y sin lógica de mercado. El resultado fueron <strong>3,911 seguidores nuevos y cero conversaciones de venta</strong>.</p>
+
+    <div class="kpis">
+      <div class="kpi hl"><span class="mono">Inversión</span><b>$27,148</b><span>26 anuncios · 173 días de pauta</span></div>
+      <div class="kpi"><span class="mono">Alcance</span><b>734,432</b><span>1,009,754 visualizaciones</span></div>
+      <div class="kpi"><span class="mono">Seguidores</span><b>3,911</b><span>$6.94 por seguidor</span></div>
+      <div class="kpi"><span class="mono">Visitas al perfil</span><b>24,599</b><span>$1.10 por visita</span></div>
+      <div class="kpi flag"><span class="mono">Conversaciones</span><b>0</b><span>en las 5 campañas que lo medían</span></div>
+    </div>
+
+    <div class="note-box">
+      <span class="mono">Nota sobre el alcance de esta auditoría</span>
+      <p>Estos <b>$27,148 corresponden únicamente a los 26 anuncios documentados</b> con captura de pantalla (ene–may 2026). El historial de la cuenta es más largo — el taller de hipótesis registra del orden de <b>$500,000 MXN invertidos</b> a lo largo del tiempo. Falta también confirmar si los montos del panel están en MXN o USD, y el desglose de <b>edad y sexo</b>, que nunca se abrió en las capturas y es el dato decisivo para la hipótesis del cliente objetivo.</p>
+    </div>
+  </section>
+
+  <!-- 01 · INVERSIÓN Y ALCANCE -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="serif">Inversión y alcance</h2></div>
+    <p class="sec-note">Dónde se fue el dinero. La distribución no siguió al cliente objetivo del negocio: siguió al inventario más barato y a lo que estaba a mano para volver a promocionar.</p>
+
+    <figure>
+      <div class="ch-title">Inversión y eficiencia por mercado</div>
+      <div class="ch-sub">Gasto en $ (barra) contra costo por seguidor conseguido</div>
+      <div class="legend">
+        <span class="lg"><i style="background:var(--s1)"></i>Gasto</span>
+        <span class="lg"><i style="background:var(--s2)"></i>Costo por seguidor</span>
+      </div>
+      <div class="rows" id="mkt"></div>
+      <figcaption>LATAM concentró el 60% del gasto y fue el mercado más eficiente en costo, pero es el que menos coincide con el cliente que el negocio quiere. España recibió el 27% del gasto siendo <b>2.7× más caro por seguidor</b> que LATAM.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="ch-title">El 78% del gasto fue en repetir las mismas publicaciones</div>
+      <div class="ch-sub">12 publicaciones únicas se convirtieron en 26 anuncios — varias se promocionaron 3 y 4 veces</div>
+      <div class="rows" id="reuse"></div>
+      <figcaption>Solo 12 piezas de contenido soportaron 26 campañas. <b>$21,137 de los $27,148</b> se gastaron en publicaciones que ya se habían pautado antes.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 02 · QUÉ FUNCIONÓ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2 class="serif">Qué funcionó</h2></div>
+    <p class="sec-note">Hay que decirlo con claridad para no tirar el aprendizaje: <strong>el problema no es el contenido de Karla.</strong> El creativo rinde, y hay dos señales de formato y una de mercado que son directamente accionables.</p>
+
+    <figure>
+      <div class="ch-title">Karla hablando a cámara gana por 73%</div>
+      <div class="ch-sub">Engagement rate — likes + guardados sobre alcance</div>
+      <div class="rows" id="fmt"></div>
+      <figcaption>Los reels donde Karla habla a cámara en viñedo o bodega promedian <b>7.43% de engagement</b> contra 4.29% del contenido de paisaje, objeto o b-roll. Mismo costo por seguidor, casi el doble de conexión. Es la señal de formato más clara de todo el set.</figcaption>
+    </figure>
+
+    <h3 class="sub">Los 5 anuncios más eficientes</h3>
+    <p class="sub-note">Todos por debajo de $4.70 por seguidor, cuando el promedio del set fue $6.94 y el peor caso llegó a $36.06.</p>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>Fecha</th><th>Contenido</th><th>Mercado</th><th class="num">Gasto</th><th class="num">$/seguidor</th><th class="num">Engagement</th></tr></thead>
+        <tbody>
+          <tr><td>17 abr</td><td>Racimo de uvas en la vid</td><td>LATAM</td><td class="num">$621</td><td class="num good">$3.93</td><td class="num">6.46%</td></tr>
+          <tr><td>23 ene</td><td>"5 Vinos Volcánicos"</td><td>LATAM</td><td class="num">$699</td><td class="num good">$4.02</td><td class="num">4.53%</td></tr>
+          <tr><td>16 ene</td><td>Selfie hablando en viñedo</td><td>LATAM</td><td class="num">$798</td><td class="num good">$4.07</td><td class="num">6.26%</td></tr>
+          <tr><td>22 abr</td><td>"3 Restaurantes Top en Madrid"</td><td>España + LATAM</td><td class="num">$520</td><td class="num good">$4.16</td><td class="num">3.09%</td></tr>
+          <tr><td>12 feb</td><td>Reel en bodega de espaldas</td><td>LATAM</td><td class="num">$1,746</td><td class="num good">$4.42</td><td class="num">3.69%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="findings">
+      <div class="find ok">
+        <span class="mono">Señal 1 · Formato</span>
+        <h4>El contenido educativo con lista se guarda</h4>
+        <p>"5 Vinos Volcánicos" y "3 Restaurantes Top en Madrid" tienen las tasas de guardado más altas del set — hasta <span class="num-inline">202 y 189 guardados</span>. La gente archiva recomendaciones concretas de vino para usarlas después. Ese es <b>intención de compra latente</b>, y hoy no se está capturando en ningún lado.</p>
+      </div>
+      <div class="find ok">
+        <span class="mono">Señal 2 · Mercado</span>
+        <h4>México engancha; España mira y se va</h4>
+        <p>México y LATAM tienen engagement de 5.3–5.6% y cuestan $5.73–$7.56 por seguidor. España tiene 1.31% de engagement y cuesta $15.53.</p>
+        <p>Pero hay un matiz que importa: <b>España generó las mejores tasas de visita al perfil</b> (hasta 9.08% del alcance, contra 1.2–1.8% en LATAM). El patrón es nítido: el público español entra a ver quién es Karla y se va; el latinoamericano consume el reel y sigue la cuenta sin investigar. <b>Ninguno de los dos compró nada, porque no había nada que comprar.</b></p>
+      </div>
+      <div class="find ok">
+        <span class="mono">Señal 3 · Activo</span>
+        <h4>La autoridad es real y es el diferenciador</h4>
+        <p>Cuenta verificada, 113 mil seguidores, credenciales OIV MSc y DipWSET en la bio, y contenido grabado en Rioja, Borgoña, Burdeos, Granada y Lanzarote. <b>Ese activo no se compra con pauta</b> — y es exactamente el que sostiene la propuesta de valor de curaduría auténtica del proyecto de viajes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · QUÉ SE HIZO MAL -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2 class="serif">Qué se hizo mal</h2></div>
+    <p class="sec-note">Cinco errores estructurales. Ninguno es de contenido — todos son de configuración, y todos son consecuencia de haber pautado desde el botón de Instagram en lugar de Meta Ads Manager.</p>
+
+    <div class="findings">
+      <div class="find">
+        <span class="mono">Error 1 · El objetivo</span>
+        <h4>Se optimizó para una métrica que no vende</h4>
+        <p><b>21 de los 26 anuncios</b> usaron "visitas al perfil" como objetivo — $18,947 del gasto. Es el default que ofrece la app. Los otros 5 usaron "combinación optimizada", que <b>sí medía conversaciones iniciadas: dieron 0 en todos los casos, sin excepción</b>.</p>
+        <p>Instagram cumplió lo que se le pidió: llevó gente al perfil. El problema es que llegar al perfil no es un resultado de negocio.</p>
+      </div>
+      <div class="find">
+        <span class="mono">Error 2 · El destino</span>
+        <h4>No había ningún lugar donde convertir</h4>
+        <p>24,599 personas visitaron el perfil pagado. Al llegar encontraron una bio de credenciales — <em>Wine Specialist, OIV MSc, DipWSET Student</em> — <b>sin oferta, sin propuesta de servicio y sin enlace a nada</b>. Los destacados son destinos (Rioja, Madrid, Borgoña, Burdeos, CDMX, Granada), no puertas de entrada comerciales.</p>
+        <p>Se pagó por 24,599 visitas a un escaparate vacío. Ese es el error más caro del set.</p>
+      </div>
+      <div class="find">
+        <span class="mono">Error 3 · La fatiga</span>
+        <h4>Se siguió pagando por creativos agotados</h4>
+        <p>El mismo contenido se repautó hasta 4 veces con rendimiento en caída libre y sin que nadie frenara. La curva está abajo.</p>
+      </div>
+    </div>
+
+    <figure>
+      <div class="ch-title">Fatiga de creativo: el rendimiento se derrumba ronda a ronda</div>
+      <div class="ch-sub">Seguidores conseguidos por cada ronda del mismo contenido, en orden cronológico</div>
+      <div class="legend">
+        <span class="lg"><i style="background:var(--s1)"></i>Seguidores por ronda</span>
+      </div>
+      <div id="fatiga"></div>
+      <figcaption>El post "5 Vinos Volcánicos / Terrantez" pasó de 174 a 85 seguidores en cuatro rondas — <b>una caída del 51%</b> — con alcance bajando de 21,876 a 14,447. El de "Wine Encounters" cayó de 110 a 33 seguidores (−70%). La cuarta ronda del post B se agravó porque además se cambió a España: 395 → 43 seguidores.</figcaption>
+    </figure>
+
+    <div class="findings">
+      <div class="find">
+        <span class="mono">Error 4 · La geografía</span>
+        <h4>El dinero fue a diez países sin lógica de negocio</h4>
+        <p>En los top-5 de audiencia de los 26 anuncios aparecen Chile, Perú, Bolivia, Colombia, Venezuela, Argentina, Guatemala, República Dominicana, México y España. <b>México aparece en el top-5 de solo 2 de los 26 anuncios.</b></p>
+        <p>El cliente objetivo definido en el taller de hipótesis es el amateur apasionado mexicano de 45 a 75 años con $100–120k MXN de presupuesto de viaje. Se pagó alcance masivo en países que no están en esa definición, porque el CPM ahí es más barato y la herramienta optimiza por costo, no por valor de cliente.</p>
+      </div>
+      <div class="find">
+        <span class="mono">Error 5 · El control</span>
+        <h4>Presupuesto sin ejecutar y cero aprendizaje acumulado</h4>
+        <p><b>$1,198 nunca se gastaron</b> en 4 campañas — una entregó solo el 56% de su presupuesto. Eso indica audiencias demasiado chicas o puja mal configurada, algo que en Ads Manager se ve y se corrige, y desde la app no.</p>
+        <p>Más grave: no hay evidencia de que un resultado haya informado la siguiente decisión. El mismo creativo se repautó al mercado más caro después de haber rendido mejor en el más barato. <b>26 campañas y ninguna lectura consolidada.</b></p>
+      </div>
+    </div>
+
+    <div class="dark-panel">
+      <span class="mono">El hallazgo más grave · cruce con el panel de la cuenta</span>
+      <h3 class="serif">Se construyó una audiencia de <em>113 mil</em> que ya no ve el contenido.</h3>
+      <p>En los últimos 30 días la cuenta alcanzó <strong>21,953 cuentas de sus 113,509 seguidores — un 19%</strong> — y solo <strong>757 cuentas interactuaron (0.67%)</strong>. Los ~3,900 seguidores comprados en esta pauta entraron a una base que en su mayoría no consume lo que se publica.</p>
+      <p style="margin-top:12px">Y hay una causa operativa medible: <strong>95.7% de las visualizaciones del último mes son historias y solo 4.3% son reels</strong>. Los reels son lo que trae alcance nuevo y lo que esta pauta amplificaba; las historias solo hablan a quien ya está. El motor de crecimiento está apagado.</p>
+      <div class="dp-stats">
+        <div><span class="mono">Seguidores</span><b>113,509</b></div>
+        <div><span class="mono">Alcanzados / 30 d</span><b>21,953</b></div>
+        <div><span class="mono">% de la base</span><b>19%</b></div>
+        <div><span class="mono">Interactuaron</span><b>757</b></div>
+        <div><span class="mono">Reels vs historias</span><b>4.3%</b></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · QUÉ DATA SÍ SIRVE -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2 class="serif">Qué data sí nos sirve</h2></div>
+    <p class="sec-note">No todo fue gasto perdido: estos $27k compraron información que normalmente costaría un presupuesto de prueba. Esto es lo que se puede usar mañana, y con qué hipótesis del proyecto conecta.</p>
+
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>Lo que sabemos</th><th>El dato</th><th>Para qué lo usamos</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>México es mejor mercado que España</b></td>
+            <td>ER 5.29% vs 1.31% · $7.56 vs $15.53 por seguidor</td>
+            <td>Alimenta <b>H5</b> (¿internacional desde el inicio?): la respuesta es empezar por México, no por España.</td>
+          </tr>
+          <tr>
+            <td><b>Test natural del 5 de mayo</b></td>
+            <td>Mismo día, mismo presupuesto ($1,552), 8 días: México 1,745 likes / 164 seguidores vs España 44 likes / 43 seguidores</td>
+            <td>Evidencia dura y controlada de que la audiencia mexicana responde. Va al memo de decisión de <b>S8</b>.</td>
+          </tr>
+          <tr>
+            <td><b>Formato ganador identificado</b></td>
+            <td>Karla hablando a cámara: 7.43% ER vs 4.29% del b-roll</td>
+            <td>Define el formato base de los guiones de bodas (<b>S3–S4</b>) y de las 3 sesiones de grabación.</td>
+          </tr>
+          <tr>
+            <td><b>El contenido de lista se guarda</b></td>
+            <td>Hasta 202 guardados por pieza; 3,383 guardados totales</td>
+            <td>Formato probado para lead magnets: "5 vinos para tu boda", "3 bodegas que nadie conoce".</td>
+          </tr>
+          <tr>
+            <td><b>Benchmarks propios de costo</b></td>
+            <td>CPM $36.96 por mil alcanzados · $1.10 por visita al perfil · $6.94 por seguidor</td>
+            <td>Línea base real para presupuestar la campaña de bodas de <b>S5–S6</b> y proyectar costo por lead.</td>
+          </tr>
+          <tr>
+            <td><b>La base de 113 mil está fría</b></td>
+            <td>19% de alcance mensual · 0.67% de interacción</td>
+            <td>Confirma que la tarea de <b>S3–S4</b> no es "crecer la cuenta" sino reactivarla y reorientarla.</td>
+          </tr>
+          <tr>
+            <td><b>Mejor momento de publicación</b></td>
+            <td>Pico de actividad lunes 12 h (49,613) — meseta de 9 h a 18 h</td>
+            <td>Programación de las publicaciones orgánicas y de los horarios de pauta.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note-box">
+      <span class="mono">Lo que todavía falta pedir</span>
+      <p><b>1. Desglose de edad y sexo.</b> Nunca se abrió esa pestaña. Es el dato que confirma o refuta el diagnóstico central del taller de hipótesis — que la cuenta le habla a un público joven que no monetiza en vino. Con eso, <b>H1</b> pasa de sospecha a hecho.</p>
+      <p><b>2. Histórico completo de promociones.</b> La captura de la lista completa llegó ilegible; hace falta en partes para tener la inversión total real de la cuenta.</p>
+      <p><b>3. Moneda de los montos.</b> MXN o USD cambia por completo la magnitud del diagnóstico.</p>
+    </div>
+  </section>
+
+  <!-- 05 · HACIA DÓNDE -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2 class="serif">Hacia dónde debe ir la cuenta</h2></div>
+    <p class="sec-note">La cuenta hoy es un portafolio personal de credenciales de vino. Tiene que convertirse en <strong>el canal de adquisición de los dos negocios</strong> — el que llena el waitlist de bodas y la lista de interesados en viajes. El cambio es de función, no de estética.</p>
+
+    <div class="dark-panel">
+      <span class="mono">El giro en una frase</span>
+      <h3 class="serif">De <em>sommelier que documenta</em> a <em>curadora que te lleva</em>.</h3>
+      <p>Hoy el contenido demuestra que Karla sabe de vino y viaja. Eso genera admiración, no demanda. El contenido tiene que demostrar que <strong>Karla te da acceso a algo que no puedes conseguir sola</strong> — la familia de 15 generaciones, la bodega sin presupuesto de marketing, el vino correcto para tu boda. Es la misma propuesta de valor del taller de hipótesis, pero dicha desde el contenido.</p>
+    </div>
+
+    <h3 class="sub">Los 6 movimientos, en orden</h3>
+    <div class="steps">
+      <div class="step">
+        <div>
+          <h4>Apagar la pauta desde la app. Hoy.</h4>
+          <p>Cero campañas nuevas desde el botón "Promocionar". Abrir Meta Ads Manager con Business Manager y píxel instalado antes del siguiente peso invertido. Es la diferencia entre comprar visitas y comprar leads.</p>
+          <span class="tag">Lucía · inmediato</span>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h4>Construir el destino antes de volver a pautar</h4>
+          <p>Landing de bodas con waitlist y landing de viajes con lista de interesados, enlazadas desde la bio. Sin esto, cualquier presupuesto repite exactamente el error de los $27k: tráfico a un escaparate vacío.</p>
+          <span class="tag">Lucía · S2–S3 del roadmap</span>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h4>Reescribir bio y destacados como embudo</h4>
+          <p>La bio debe decir qué hace por ti, no qué títulos tiene — las credenciales pasan a ser prueba, no titular. Los destacados se reorganizan por oferta: <em>Viajes · Bodas · Catas · Quién soy</em>, y los destinos quedan dentro de "Viajes" como evidencia.</p>
+          <span class="tag">Lucía + Karla · S2</span>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h4>Reactivar reels con el formato que ya ganó</h4>
+          <p>El dato es claro: Karla hablando a cámara en viñedo o bodega, y contenido de lista que se guarda. Meta de 3 reels por semana frente al 4.3% actual de visualizaciones. Las historias sostienen la relación; los reels traen gente nueva.</p>
+          <span class="tag">Karla + Lucía · S3 en adelante</span>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h4>Segmentar por cliente, no por CPM barato</h4>
+          <p>México primero — CDMX, Guadalajara, Monterrey, Querétaro — con rango de edad 45+ y públicos por interés en vino, gastronomía premium y viajes. Cero pauta a Chile, Perú, Bolivia y Colombia hasta que haya un producto que les podamos vender. España se reserva para B2B con bodegas e importadores, no para vender viajes.</p>
+          <span class="tag">Lucía · S5</span>
+        </div>
+      </div>
+      <div class="step">
+        <div>
+          <h4>Medir leads y costo por lead, nunca seguidores</h4>
+          <p>El KPI deja de ser alcance o seguidores y pasa a ser <b>costo por lead calificado</b> y leads con fecha de boda. Presupuesto de prueba chico con 3–4 creativos en A/B, y escalar solo al ganador. Con el CPM de $36.96 de referencia ya se puede proyectar cuánto cuesta llenar el pipeline.</p>
+          <span class="tag">Lucía · S5–S6</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pill-row">
+      <span class="pill">La audiencia de 113 mil no se abandona: se reactiva y se reorienta</span>
+      <span class="pill">Los $27k ya compraron los aprendizajes — ahora hay que usarlos</span>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wordmark" style="gap:8px"><span class="dot" style="width:20px;height:20px" aria-hidden="true"></span><span class="serif" style="font-size:16px">amura <small class="mono">Partners</small></span></div>
+    <span class="mono">Auditoría de pauta · @karlasommelier · V0.1 · Confidencial</span>
+  </footer>
+</div>
+
+<script>
+  const nf = new Intl.NumberFormat('es-MX');
+  const money = n => '$' + nf.format(Math.round(n));
+
+  // ── Mercado: gasto + costo por seguidor (dos filas por grupo, escalas independientes y etiquetadas) ──
+  const MKT = [
+    { n:'LATAM mixto',   ads:16, g:16222, cps:5.73 },
+    { n:'España',        ads:6,  g:5419,  cps:15.53 },
+    { n:'España (público guardado)', ads:1, g:1949, cps:9.51 },
+    { n:'México',        ads:2,  g:3037,  cps:7.56 },
+    { n:'España + LATAM',ads:1,  g:520,   cps:4.16 },
+  ];
+  const maxG = Math.max(...MKT.map(m=>m.g)), maxC = Math.max(...MKT.map(m=>m.cps));
+  document.getElementById('mkt').innerHTML = MKT.map(m => `
+    <div class="grp">
+      <div class="row">
+        <div class="lbl"><b>${m.n}</b>${m.ads} anuncio${m.ads>1?'s':''}</div>
+        <div class="barwrap"><div class="bar a" style="width:${Math.max(1.2,m.g/maxG*82)}%"></div><span class="val">${money(m.g)}</span></div>
+      </div>
+      <div class="row">
+        <div class="lbl" style="color:var(--ink2)">costo/seguidor</div>
+        <div class="barwrap"><div class="bar b" style="width:${Math.max(1.2,m.cps/maxC*82)}%"></div><span class="val dim">$${m.cps.toFixed(2)}</span></div>
+      </div>
+    </div>`).join('');
+
+  // ── Reutilización ──
+  const REUSE = [
+    { n:'Reel en bodega', v:4, g:4622 },
+    { n:'Caminando en viñedo', v:3, g:2892 },
+    { n:'"5 Vinos Volcánicos"', v:4, g:2432 },
+    { n:'Selfie en viñedo', v:2, g:2348 },
+    { n:'Puerta de Alcalá', v:2, g:2346 },
+    { n:'Racimo de uvas', v:2, g:2108 },
+    { n:'"Wine Encounters"', v:2, g:1712 },
+    { n:'Copa en La Rioja', v:2, g:1362 },
+    { n:'"3 Restaurantes Madrid"', v:2, g:1315 },
+  ];
+  const maxR = Math.max(...REUSE.map(r=>r.g));
+  document.getElementById('reuse').innerHTML = REUSE.map(r => `
+    <div class="row">
+      <div class="lbl"><b>${r.n}</b>pautado ${r.v} veces</div>
+      <div class="barwrap"><div class="bar a" style="width:${Math.max(1.2,r.g/maxR*80)}%"></div><span class="val">${money(r.g)}</span></div>
+    </div>`).join('');
+
+  // ── Formato ──
+  const FMT = [
+    { n:'Karla hablando a cámara', er:7.43, ads:6, cps:8.19 },
+    { n:'Paisaje, objeto, b-roll', er:4.29, ads:20, cps:6.47 },
+  ];
+  document.getElementById('fmt').innerHTML = FMT.map(x => `
+    <div class="row">
+      <div class="lbl"><b>${x.n}</b>${x.ads} anuncios · $${x.cps.toFixed(2)}/seg</div>
+      <div class="barwrap"><div class="bar a" style="width:${x.er/7.43*78}%"></div><span class="val">${x.er.toFixed(2)}%</span></div>
+    </div>`).join('');
+
+  // ── Fatiga ──
+  const FAT = [
+    { post:'"5 Vinos Volcánicos" / Terrantez', rondas:[
+      {f:'23 ene · LATAM', s:174}, {f:'13 mar · LATAM', s:150}, {f:'22 abr · LATAM', s:111}, {f:'11 may · LATAM', s:85}] },
+    { post:'Reel en bodega', rondas:[
+      {f:'12 feb · LATAM', s:395}, {f:'13 mar · LATAM', s:119}, {f:'22 abr · LATAM', s:88}, {f:'5 may · España', s:43}] },
+    { post:'Caminando en viñedo', rondas:[
+      {f:'23 feb · LATAM', s:219}, {f:'13 mar · LATAM', s:133}, {f:'16 abr · LATAM', s:100}] },
+    { post:'"Wine Encounters"', rondas:[
+      {f:'2 mar · España', s:110}, {f:'17 abr · España', s:33}] },
+  ];
+  const maxF = Math.max(...FAT.flatMap(p=>p.rondas.map(r=>r.s)));
+  document.getElementById('fatiga').innerHTML = FAT.map(p => `
+    <div class="grp" style="margin-top:16px">
+      <div style="font-weight:650;font-size:13.5px;margin-bottom:6px">${p.post}
+        <span style="font-weight:400;color:var(--bad);font-size:12.5px"> · ${Math.round((p.rondas.at(-1).s/p.rondas[0].s-1)*100)}%</span>
+      </div>
+      ${p.rondas.map(r=>`
+        <div class="row">
+          <div class="lbl" style="color:var(--ink2)">${r.f}</div>
+          <div class="barwrap"><div class="bar a" style="width:${Math.max(1.2,r.s/maxF*76)}%"></div><span class="val">${r.s} seg.</span></div>
+        </div>`).join('')}
+    </div>`).join('');
+</script>
