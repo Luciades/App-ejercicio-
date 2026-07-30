@@ -44,10 +44,15 @@ function load() {
     return d;
   } catch { return defaultState(); }
 }
+function storageOK() {
+  try { localStorage.setItem('__test', '1'); localStorage.removeItem('__test'); return true; }
+  catch { return false; }
+}
 function save() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
-  catch (e) { /* almacenamiento lleno o modo privado: no rompemos la UI */ }
+  catch (e) { showStorageWarn(); /* almacenamiento lleno o modo privado */ }
 }
+function showStorageWarn() { const el = document.getElementById('storageWarn'); if (el) el.classList.remove('hidden'); }
 
 // Fecha LOCAL (no UTC) para que el día se reinicie a tu medianoche
 function localDate(d) {
@@ -67,16 +72,23 @@ function lastNDates(n) {
 }
 
 /* ---------- Helpers de datos ---------- */
-// Semana actual (cambia cada lunes aprox.)
-function weekIndex() { return Math.floor((Date.now() + 3 * 86400000) / (7 * 86400000)); }
+function weekIndexOf(ds) { return Math.floor((new Date(ds + 'T00:00:00').getTime() + 3 * 86400000) / (7 * 86400000)); }
+function weekIndex() { return weekIndexOf(todayStr()); }
+// Cuántas veces (días distintos) completaste este día antes de hoy → rota variantes
+function daySessions(day) {
+  const dates = new Set();
+  state.history.forEach(h => { if ((h.dayId === day.id || h.day === day.name) && h.date < todayStr()) dates.add(h.date); });
+  return dates.size;
+}
+let dayRot = 0;
 
 // Elección "base" de un ejercicio (rotación semanal o selección manual)
 function basePick(ex) {
   const sel = state.selected[ex.key];
   if (state.settings.autoRotate && ex.opts.length > 1) {
-    // un cambio manual solo pisa la rotación durante esta semana
-    if (sel && typeof sel === 'object' && sel.week === weekIndex() && ex.opts.includes(sel.id)) return sel.id;
-    return ex.opts[weekIndex() % ex.opts.length];
+    // un cambio manual solo pisa la rotación de esta sesión
+    if (sel && typeof sel === 'object' && sel.r === dayRot && ex.opts.includes(sel.id)) return sel.id;
+    return ex.opts[dayRot % ex.opts.length];
   }
   const id = (sel && typeof sel === 'object') ? sel.id : sel;
   return (id && ex.opts.includes(id)) ? id : ex.opts[0];
@@ -84,6 +96,7 @@ function basePick(ex) {
 // Resuelve el día evitando ejercicios repetidos entre slots
 let dayResolved = {};
 function resolveDay(day) {
+  dayRot = daySessions(day);
   dayResolved = {};
   const used = new Set();
   day.exercises.forEach(ex => {
@@ -153,9 +166,10 @@ function weightHint(equip) {
    ============================================================ */
 function renderTabs() {
   const tabs = $('#dayTabs');
-  const doneToday = new Set(state.history.filter(h => h.date === todayStr()).map(h => h.dayId || h.day));
+  const wk = weekIndex();
+  const doneWeek = new Set(state.history.filter(h => weekIndexOf(h.date) === wk).map(h => h.dayId || h.day));
   tabs.innerHTML = ROUTINE.days.map((d, i) => {
-    const done = doneToday.has(d.id) || doneToday.has(d.name);
+    const done = doneWeek.has(d.id) || doneWeek.has(d.name);
     return `<button class="day-tab ${i === currentDay ? 'active' : ''} ${done ? 'done' : ''}" data-i="${i}">
        <span class="dt-emoji">${done ? '✅' : d.emoji}</span>
        <span class="dt-name">${d.name}</span>
@@ -170,7 +184,7 @@ function renderDay() {
   $('#headerSub').textContent = `${d.name} · ${d.focus}`;
   const totalSets = d.exercises.reduce((a, e) => a + effectiveSets(e), 0);
   $('#dayHead').innerHTML = `<h2>${d.emoji} ${d.focus}</h2>
-    <p class="muted">${d.exercises.length} ejercicios · ${totalSets} series${state.settings.autoRotate ? ' · 🔁 rota cada semana' : ''}</p>`;
+    <p class="muted">${d.exercises.length} ejercicios · ${totalSets} series${state.settings.autoRotate ? ' · 🔁 cambia cada vez que lo repetís' : ''}</p>`;
 
   // Calentamiento
   $('#warmupList').innerHTML = WARM[d.warm].map(w => `<li>${w}</li>`).join('');
@@ -339,7 +353,7 @@ function openSwap(key) {
     </button>`;
   }).join('');
   $$('.swap-opt').forEach(b => b.onclick = () => {
-    state.selected[key] = state.settings.autoRotate ? { week: weekIndex(), id: b.dataset.id } : b.dataset.id;
+    state.selected[key] = state.settings.autoRotate ? { r: dayRot, id: b.dataset.id } : b.dataset.id;
     save();
     closeSwap();
     renderDay();
@@ -1106,6 +1120,7 @@ function toast(msg) {
    INIT
    ============================================================ */
 function init() {
+  if (!storageOK()) showStorageWarn();
   applySettings();
   renderTabs();
   renderDay();

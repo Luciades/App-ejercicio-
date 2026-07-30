@@ -23,6 +23,11 @@
     <button class="icon-btn" id="settingsBtn" aria-label="Ajustes">⚙️</button>
   </header>
 
+  <div id="storageWarn" class="storage-warn hidden">
+    ⚠️ <strong>Tu navegador no está guardando los datos.</strong> Tus registros (agua, comida, entrenamientos) se van a perder al cerrar.
+    Suele pasar en <strong>modo privado de Safari</strong>: salí del modo privado, o agregá la app a la pantalla de inicio. No borres los datos del sitio.
+  </div>
+
   <!-- ================= VISTA: RUTINA ================= -->
   <main id="view-routine" class="view">
     <div class="day-tabs" id="dayTabs"></div>
@@ -119,7 +124,7 @@
         <input type="checkbox" id="animToggle" checked>
       </label>
       <label class="row-toggle">
-        <span>🔁 Rotar ejercicios cada semana</span>
+        <span>🔁 Rotar ejercicios al repetir el día</span>
         <input type="checkbox" id="rotateToggle" checked>
       </label>
       <label class="row-toggle">
@@ -158,6 +163,26 @@
     </section>
 
     <section class="card">
+      <h3>💊 Vitaminas / Suplementos de hoy</h3>
+      <p class="muted">Marcá la palomita cuando lo tomes. Se reinicia cada día.</p>
+      <div class="supp-slot">
+        <h4>🌅 Mañana</h4>
+        <div id="suppList-manana"></div>
+        <div class="supp-add"><input id="suppInput-manana" class="full-input" placeholder="Agregar a la mañana…"><button class="btn-primary" data-add="manana">＋</button></div>
+      </div>
+      <div class="supp-slot">
+        <h4>☀️ Tarde</h4>
+        <div id="suppList-tarde"></div>
+        <div class="supp-add"><input id="suppInput-tarde" class="full-input" placeholder="Agregar a la tarde…"><button class="btn-primary" data-add="tarde">＋</button></div>
+      </div>
+      <div class="supp-slot">
+        <h4>🌙 Noche</h4>
+        <div id="suppList-noche"></div>
+        <div class="supp-add"><input id="suppInput-noche" class="full-input" placeholder="Agregar a la noche…"><button class="btn-primary" data-add="noche">＋</button></div>
+      </div>
+    </section>
+
+    <section class="card">
       <h3>📋 Porciones por comida (tu plan)</h3>
       <div class="table-wrap">
         <table class="ptable">
@@ -188,27 +213,6 @@
         <button class="btn-primary" id="offBtn">Buscar</button>
       </div>
       <div id="offResults"></div>
-    </section>
-
-    <section class="card">
-      <h3>💊 Vitaminas / Suplementos</h3>
-      <p class="muted">Marcá la palomita cuando lo tomes. Se reinicia cada día.</p>
-
-      <div class="supp-slot">
-        <h4>🌅 Mañana</h4>
-        <div id="suppList-manana"></div>
-        <div class="supp-add"><input id="suppInput-manana" class="full-input" placeholder="Agregar a la mañana…"><button class="btn-primary" data-add="manana">＋</button></div>
-      </div>
-      <div class="supp-slot">
-        <h4>☀️ Tarde</h4>
-        <div id="suppList-tarde"></div>
-        <div class="supp-add"><input id="suppInput-tarde" class="full-input" placeholder="Agregar a la tarde…"><button class="btn-primary" data-add="tarde">＋</button></div>
-      </div>
-      <div class="supp-slot">
-        <h4>🌙 Noche</h4>
-        <div id="suppList-noche"></div>
-        <div class="supp-add"><input id="suppInput-noche" class="full-input" placeholder="Agregar a la noche…"><button class="btn-primary" data-add="noche">＋</button></div>
-      </div>
     </section>
   </main>
 
