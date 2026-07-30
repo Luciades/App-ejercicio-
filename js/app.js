@@ -93,18 +93,34 @@ function basePick(ex) {
   const id = (sel && typeof sel === 'object') ? sel.id : sel;
   return (id && ex.opts.includes(id)) ? id : ex.opts[0];
 }
-// Resuelve el día evitando ejercicios repetidos entre slots
+// Devuelve la elección MANUAL válida de este ejercicio, o null
+function manualPick(ex) {
+  const sel = state.selected[ex.key];
+  if (!sel) return null;
+  if (state.settings.autoRotate) {
+    if (typeof sel === 'object' && sel.r === dayRot && ex.opts.includes(sel.id)) return sel.id;
+    return null;
+  }
+  const id = (typeof sel === 'object') ? sel.id : sel;
+  return (id && ex.opts.includes(id)) ? id : null;
+}
+// Resuelve el día: los cambios manuales SIEMPRE ganan; los automáticos
+// se corren para no repetir ejercicio.
 let dayResolved = {};
 function resolveDay(day) {
   dayRot = daySessions(day);
   dayResolved = {};
   const used = new Set();
+  // Paso 1: honrar elecciones manuales
   day.exercises.forEach(ex => {
-    let id = basePick(ex);
-    if (used.has(id)) {
-      const alt = ex.opts.find(o => !used.has(o));
-      if (alt) id = alt;
-    }
+    const m = manualPick(ex);
+    if (m) { dayResolved[ex.key] = m; used.add(m); }
+  });
+  // Paso 2: los demás por rotación, evitando duplicados
+  day.exercises.forEach(ex => {
+    if (dayResolved[ex.key]) return;
+    let id = (state.settings.autoRotate && ex.opts.length > 1) ? ex.opts[dayRot % ex.opts.length] : ex.opts[0];
+    if (used.has(id)) { const alt = ex.opts.find(o => !used.has(o)); if (alt) id = alt; }
     used.add(id);
     dayResolved[ex.key] = id;
   });
