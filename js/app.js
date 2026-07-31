@@ -180,12 +180,23 @@ function weightHint(equip) {
 /* ============================================================
    RENDER — Vista rutina
    ============================================================ */
+// Cuántos días distintos completaste este día (histórico)
+function dayCount(day) {
+  const dates = new Set();
+  state.history.forEach(h => { if (h.dayId === day.id || h.day === day.name) dates.add(h.date); });
+  return dates.size;
+}
+// Ronda actual = mínimo de vueltas completas entre los 4 días
+function currentRound() {
+  const counts = ROUTINE.days.map(dayCount);
+  return counts.length ? Math.min(...counts) : 0;
+}
+
 function renderTabs() {
   const tabs = $('#dayTabs');
-  const wk = weekIndex();
-  const doneWeek = new Set(state.history.filter(h => weekIndexOf(h.date) === wk).map(h => h.dayId || h.day));
+  const round = currentRound();
   tabs.innerHTML = ROUTINE.days.map((d, i) => {
-    const done = doneWeek.has(d.id) || doneWeek.has(d.name);
+    const done = dayCount(d) > round; // hecho en la ronda actual
     return `<button class="day-tab ${i === currentDay ? 'active' : ''} ${done ? 'done' : ''}" data-i="${i}">
        <span class="dt-emoji">${done ? '✅' : d.emoji}</span>
        <span class="dt-name">${d.name}</span>
@@ -432,7 +443,13 @@ function finishWorkout() {
   state.history = state.history.slice(0, 60);
   save();
   renderTabs();
-  toast(`💪 ¡Entrenamiento guardado! ${doneSets} series · ${Math.round(volume).toLocaleString('es')} lb de volumen`);
+  const counts = ROUTINE.days.map(dayCount);
+  const mn = Math.min(...counts);
+  if (mn > 0 && mn === Math.max(...counts)) {
+    toast(`🎉 ¡Completaste la ronda ${mn}! Se reinician las palomitas y la próxima vez cada día sale con ejercicios rotados 🔁`);
+  } else {
+    toast(`💪 ¡Entrenamiento guardado! ${doneSets} series · ${Math.round(volume).toLocaleString('es')} lb de volumen`);
+  }
   setView('progress');
 }
 
