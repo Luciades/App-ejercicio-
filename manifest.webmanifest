@@ -1,0 +1,15 @@
+{
+  "name": "SuperCasa · Recetas y lista del súper",
+  "short_name": "SuperCasa",
+  "description": "Todas mis recetas en un solo lugar (fotos y links), menú semanal y lista del súper calculada según lo que hay en el refri y cuántos comen.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1614",
+  "theme_color": "#0f1614",
+  "lang": "es",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

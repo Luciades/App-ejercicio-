@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f1614">
+  <title>SuperCasa · Recetas y lista del súper</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="logo">🛒</span>
+      <div>
+        <h1>SuperCasa</h1>
+        <p class="subtitle" id="headerSub">Recetas · Menú · Súper</p>
+      </div>
+    </div>
+    <button class="icon-btn" id="settingsBtn" aria-label="Ajustes">⚙️</button>
+  </header>
+
+  <div id="storageWarn" class="storage-warn hidden">
+    ⚠️ <strong>Tu navegador no está guardando los datos.</strong> Tus recetas y listas se van a perder al cerrar.
+    Suele pasar en <strong>modo privado de Safari</strong>: salí del modo privado o agregá la app a la pantalla de inicio.
+  </div>
+
+  <!-- ================= VISTA: RECETAS ================= -->
+  <main id="view-recetas" class="view">
+    <h2 class="view-title">📖 Mis recetas</h2>
+    <p class="view-sub muted">Sacá foto a la receta, pegá un link de TikTok o Instagram, o escribila a mano.</p>
+
+    <div id="reminderBanner" class="reminder hidden"></div>
+
+    <div class="search-row">
+      <input type="search" id="searchInput" class="full-input" placeholder="Buscar receta o ingrediente…">
+    </div>
+    <div class="chips" id="tagChips"></div>
+
+    <div id="recipeGrid" class="recipe-grid"></div>
+    <div id="recipeEmpty" class="empty hidden">
+      <span class="big-emoji">🍳</span>
+      Todavía no tenés recetas guardadas.<br>
+      Tocá el <strong>+</strong> de abajo para agregar la primera.
+      <div class="btn-row" style="justify-content:center; margin-top:14px;">
+        <button class="btn-ghost sm" id="loadSamplesBtn">Cargar 3 recetas de ejemplo</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= VISTA: SEMANA ================= -->
+  <main id="view-semana" class="view hidden">
+    <h2 class="view-title">🗓️ Menú de la semana</h2>
+    <p class="view-sub muted">Elegí qué vas a cocinar cada día y cuántas personas comen. Con eso se arma la lista del súper.</p>
+
+    <div class="week-switch">
+      <button data-week="0" class="active">Esta semana</button>
+      <button data-week="1">Próxima semana</button>
+    </div>
+
+    <div id="weekRange" class="muted" style="margin:0 4px 12px;"></div>
+    <div id="weekDays"></div>
+
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn-ghost" id="clearWeekBtn">🗑️ Vaciar la semana</button>
+      <button class="btn-ghost" id="copyWeekBtn">📋 Copiar menú</button>
+    </div>
+    <button class="btn-primary big" id="goListBtn" style="margin-top:6px;">🛒 Ver la lista del súper</button>
+  </main>
+
+  <!-- ================= VISTA: REFRI ================= -->
+  <main id="view-refri" class="view hidden">
+    <h2 class="view-title">🧊 Qué hay en mi refri</h2>
+    <p class="view-sub muted">Lo que anotes acá se resta de la lista del súper. Si no sabés la cantidad, dejala vacía y se marca como “ya tenés”.</p>
+
+    <section class="card">
+      <h3>Agregar rápido</h3>
+      <div class="chips" id="pantryQuick"></div>
+      <div class="pantry-add">
+        <input type="text" id="pantryName" placeholder="Ingrediente">
+        <input type="number" id="pantryQty" placeholder="Cant." step="any" min="0" inputmode="decimal">
+        <select id="pantryUnit"></select>
+        <button id="pantryAddBtn" aria-label="Agregar">+</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h3>En el refri y la alacena</h3>
+        <button class="btn-ghost sm" id="clearPantryBtn">Vaciar</button>
+      </div>
+      <div id="pantryList" class="pantry-list"></div>
+    </section>
+  </main>
+
+  <!-- ================= VISTA: LISTA ================= -->
+  <main id="view-lista" class="view hidden">
+    <h2 class="view-title">🛒 Lista del súper</h2>
+    <p class="view-sub muted" id="listSub"></p>
+
+    <div class="week-switch">
+      <button data-week="0" class="active">Esta semana</button>
+      <button data-week="1">Próxima semana</button>
+    </div>
+
+    <div class="list-progress">
+      <div class="progress-track"><div class="progress-fill" id="listProgress" style="width:0%"></div></div>
+      <span class="progress-txt" id="listProgressTxt">0 / 0</span>
+    </div>
+
+    <div id="listContent"></div>
+
+    <section class="card">
+      <h3>➕ Agregar algo más</h3>
+      <div class="pantry-add">
+        <input type="text" id="extraName" placeholder="Papel de cocina, café…">
+        <input type="number" id="extraQty" placeholder="Cant." step="any" min="0" inputmode="decimal">
+        <select id="extraUnit"></select>
+        <button id="extraAddBtn" aria-label="Agregar">+</button>
+      </div>
+    </section>
+
+    <div class="btn-row">
+      <button class="btn-ghost" id="shareListBtn">📤 Compartir / copiar</button>
+      <button class="btn-ghost" id="uncheckAllBtn">↩️ Desmarcar todo</button>
+    </div>
+  </main>
+
+  <!-- ================= VISTA: AJUSTES ================= -->
+  <main id="view-ajustes" class="view hidden">
+    <h2 class="view-title">⚙️ Ajustes</h2>
+
+    <section class="card">
+      <h3>Preferencias</h3>
+      <div class="row-toggle">
+        <span>🌙 Tema oscuro</span>
+        <input type="checkbox" id="setDark">
+      </div>
+      <div class="row-toggle">
+        <span>👥 Personas por defecto</span>
+        <input type="number" id="setPeople" min="1" max="20" step="1">
+      </div>
+      <div class="row-toggle">
+        <span>🔔 Recordarme los jueves para el súper orgánico</span>
+        <input type="checkbox" id="setReminder">
+      </div>
+      <div class="row-toggle">
+        <span>⏰ Hora del recordatorio</span>
+        <input type="number" id="setReminderHour" min="0" max="23" step="1">
+      </div>
+      <p class="muted" style="margin-top:10px;">
+        El aviso aparece al abrir la app el jueves. Si le das permiso a las notificaciones,
+        además te llega una notificación mientras la app está abierta.
+      </p>
+      <div class="btn-row">
+        <button class="btn-ghost" id="notifPermBtn">🔔 Activar notificaciones</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Respaldo</h3>
+      <p class="muted">Todo se guarda solo en este dispositivo. Exportá de vez en cuando para no perder tus recetas.</p>
+      <div class="btn-row">
+        <button class="btn-ghost" id="exportBtn">⬇️ Exportar</button>
+        <button class="btn-ghost" id="importBtn">⬆️ Importar</button>
+        <input type="file" id="importFile" accept="application/json" class="hidden">
+      </div>
+      <p class="muted" id="storageInfo"></p>
+    </section>
+
+    <section class="card">
+      <h3>Zona peligrosa</h3>
+      <button class="btn-danger" id="resetBtn">Borrar todos mis datos</button>
+    </section>
+
+    <p class="muted center" style="margin-bottom:20px;">SuperCasa · funciona sin internet · v1</p>
+  </main>
+
+  <!-- ================= FAB ================= -->
+  <button class="fab hidden" id="fab" aria-label="Agregar receta">+</button>
+
+  <!-- ================= NAV ================= -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="recetas"><span class="ico">📖</span>Recetas</button>
+    <button class="nav-btn" data-view="semana"><span class="ico">🗓️</span>Semana</button>
+    <button class="nav-btn" data-view="refri"><span class="ico">🧊</span>Refri</button>
+    <button class="nav-btn" data-view="lista"><span class="ico">🛒</span>Lista<span class="nav-badge hidden" id="listBadge">0</span></button>
+  </nav>
+
+  <!-- ================= MODAL ================= -->
+  <div id="modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalTitle"></h3>
+        <button class="modal-close" id="modalClose" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <input type="file" id="photoInput" accept="image/*" capture="environment" class="hidden">
+  <input type="file" id="photoLibInput" accept="image/*" multiple class="hidden">
+
+  <script src="js/data.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
