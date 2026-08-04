@@ -3,7 +3,7 @@
    Imágenes: free-exercise-db (2 frames -> se animan tipo GIF)
    ============================================================ */
 
-const APP_VERSION = 'v11 · rota por ronda';
+const APP_VERSION = 'v12 · ayuno + receta';
 const RAW = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
 function frames(id) { return [RAW + id + '/0.jpg', RAW + id + '/1.jpg']; }
 function yt(name) { return 'https://www.youtube.com/results?search_query=' + encodeURIComponent('como hacer ' + name + ' tecnica'); }

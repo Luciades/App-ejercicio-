@@ -24,6 +24,8 @@ const defaultState = () => ({
   activities: [], // [ {date, type, min} ]
   supps: { manana: [], tarde: [], noche: [] }, // por momento del día
   suppLog: {},    // { 'YYYY-MM-DD': { 'manana|Vitamina D': true } }
+  breakfast: ['Kefir', 'Agua con ghee'], // romper ayuno
+  breakfastLog: {},
   settings: { dark: true, sound: true, anim: true, unit: 'lb', autoRotate: true, ouraAdapt: true, cycleAdapt: true },
 });
 
@@ -867,6 +869,7 @@ function renderInsight() {
 
 function renderSalud() {
   renderWater();
+  renderBreak();
   renderSupps();
   renderOura();
   loadCycleForm();
@@ -1067,8 +1070,47 @@ function renderSupps() {
       }).join('')
       : '<p class="muted supp-empty">Sin suplementos acá.</p>';
   });
-  $$('.supp-check').forEach(b => b.onclick = () => toggleSupp(b.dataset.slot, b.dataset.s));
-  $$('.supp-del').forEach(b => b.onclick = () => delSupp(b.dataset.slot, b.dataset.d));
+  $$('.supp-check[data-slot]').forEach(b => b.onclick = () => toggleSupp(b.dataset.slot, b.dataset.s));
+  $$('.supp-del[data-slot]').forEach(b => b.onclick = () => delSupp(b.dataset.slot, b.dataset.d));
+}
+
+// Cargar la receta (agrega sin duplicar, sin borrar lo que ya tenés)
+const RECETA = {
+  manana: ['Omega 3', 'NAC 1g', 'Vitamina D3+K2 (10 gotas)'],
+  noche: ['Omega 3', 'Selenio 100mcg', 'Endo Support (Mg+cúrcuma)'],
+};
+function seedReceta() {
+  Object.keys(RECETA).forEach(slot => {
+    RECETA[slot].forEach(name => { if (!state.supps[slot].includes(name)) state.supps[slot].push(name); });
+  });
+  save(); renderSupps(); toast('Receta cargada 💊');
+}
+
+/* ---------- Romper ayuno ---------- */
+function addBreak() {
+  const inp = $('#breakInput'); const name = inp.value.trim(); if (!name) return;
+  if (!state.breakfast.includes(name)) state.breakfast.push(name);
+  inp.value = ''; save(); renderBreak();
+}
+function delBreak(name) { state.breakfast = state.breakfast.filter(s => s !== name); save(); renderBreak(); }
+function toggleBreak(name) {
+  const t = todayStr(); if (!state.breakfastLog[t]) state.breakfastLog[t] = {};
+  state.breakfastLog[t][name] = !state.breakfastLog[t][name]; save(); renderBreak();
+}
+function renderBreak() {
+  const log = state.breakfastLog[todayStr()] || {};
+  $('#breakList').innerHTML = (state.breakfast || []).length
+    ? state.breakfast.map(n => {
+      const on = log[n];
+      return `<div class="supp-row ${on ? 'on' : ''}">
+        <button class="supp-check" data-b="${escq(n)}">${on ? '✓' : ''}</button>
+        <span class="supp-name">${n}</span>
+        <button class="supp-del" data-bd="${escq(n)}">🗑️</button>
+      </div>`;
+    }).join('')
+    : '<p class="muted supp-empty">Agregá lo que tomás al romper el ayuno.</p>';
+  $$('.supp-check[data-b]').forEach(b => b.onclick = () => toggleBreak(b.dataset.b));
+  $$('.supp-del[data-bd]').forEach(b => b.onclick = () => delBreak(b.dataset.bd));
 }
 
 function renderComida() { renderPortions(); renderEquiv(); }
@@ -1212,6 +1254,9 @@ function init() {
   $('#offSearch').onkeydown = e => { if (e.key === 'Enter') searchOFF(); };
   $$('[data-add]').forEach(b => b.onclick = () => addSupp(b.dataset.add));
   SLOTS.forEach(s => { $('#suppInput-' + s.k).onkeydown = e => { if (e.key === 'Enter') addSupp(s.k); }; });
+  $('#recetaBtn').onclick = seedReceta;
+  $('#breakAdd').onclick = addBreak;
+  $('#breakInput').onkeydown = e => { if (e.key === 'Enter') addBreak(); };
 
   // otras actividades
   $('#actAdd').onclick = addActivity;
