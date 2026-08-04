@@ -1154,6 +1154,7 @@ function toast(msg) {
    ============================================================ */
 function init() {
   if (!storageOK()) showStorageWarn();
+  const ver = $('#appVer'); if (ver && typeof APP_VERSION === 'string') ver.textContent = APP_VERSION;
   applySettings();
   renderTabs();
   renderDay();
@@ -1243,6 +1244,7 @@ function init() {
   // Service worker (funciona offline) + auto-actualización
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').then(reg => {
+      try { reg.update(); } catch (e) {} // fuerza chequeo de versión nueva al abrir
       reg.addEventListener('updatefound', () => {
         const nw = reg.installing;
         if (nw) nw.addEventListener('statechange', () => {
