@@ -164,26 +164,6 @@
     </section>
 
     <section class="card">
-      <h3>💊 Vitaminas / Suplementos de hoy</h3>
-      <p class="muted">Marcá la palomita cuando lo tomes. Se reinicia cada día.</p>
-      <div class="supp-slot">
-        <h4>🌅 Mañana</h4>
-        <div id="suppList-manana"></div>
-        <div class="supp-add"><input id="suppInput-manana" class="full-input" placeholder="Agregar a la mañana…"><button class="btn-primary" data-add="manana">＋</button></div>
-      </div>
-      <div class="supp-slot">
-        <h4>☀️ Tarde</h4>
-        <div id="suppList-tarde"></div>
-        <div class="supp-add"><input id="suppInput-tarde" class="full-input" placeholder="Agregar a la tarde…"><button class="btn-primary" data-add="tarde">＋</button></div>
-      </div>
-      <div class="supp-slot">
-        <h4>🌙 Noche</h4>
-        <div id="suppList-noche"></div>
-        <div class="supp-add"><input id="suppInput-noche" class="full-input" placeholder="Agregar a la noche…"><button class="btn-primary" data-add="noche">＋</button></div>
-      </div>
-    </section>
-
-    <section class="card">
       <h3>📋 Porciones por comida (tu plan)</h3>
       <div class="table-wrap">
         <table class="ptable">
@@ -220,55 +200,7 @@
   <!-- ================= VISTA: SALUD ================= -->
   <main id="view-salud" class="view hidden">
     <h2 class="view-title">❤️ Salud</h2>
-    <p class="muted" style="margin:0 4px 14px">Tus datos quedan guardados <strong>solo en este celular</strong>. No se suben a ningún lado.</p>
-
-    <section class="card">
-      <h3>Tu perfil</h3>
-      <div class="profile-grid">
-        <label>Sexo
-          <select id="pSex"><option value="F">Mujer</option><option value="M">Hombre</option></select>
-        </label>
-        <label>Edad
-          <input type="number" id="pAge" inputmode="numeric" placeholder="29">
-        </label>
-        <label>Altura (cm)
-          <input type="number" id="pHeight" inputmode="numeric" placeholder="156">
-        </label>
-        <label>Peso (kg)
-          <input type="number" id="pWeight" inputmode="decimal" step="0.1" placeholder="64.4">
-        </label>
-        <label>% Grasa (opcional)
-          <input type="number" id="pFat" inputmode="decimal" step="0.1" placeholder="41">
-        </label>
-        <label>Actividad
-          <select id="pAct">
-            <option value="1.2">Sedentaria</option>
-            <option value="1.375" selected>Ligera (1-3 días)</option>
-            <option value="1.55">Moderada (3-5 días)</option>
-            <option value="1.725">Alta (6-7 días)</option>
-          </select>
-        </label>
-      </div>
-      <label class="goal-label">Mi objetivo
-        <select id="pGoal">
-          <option value="perder">Bajar grasa</option>
-          <option value="recomp" selected>Recomposición (bajar grasa + músculo)</option>
-          <option value="ganar">Ganar músculo</option>
-        </select>
-      </label>
-      <button class="btn-primary big" id="pSave" style="margin-top:12px">Calcular mis objetivos</button>
-    </section>
-
-    <section class="card hidden" id="healthResults">
-      <h3>Tus objetivos personalizados</h3>
-      <div class="stat-grid">
-        <div class="stat"><span class="stat-num" id="rProtein">–</span><span class="stat-lbl">proteína g/día 🥩</span></div>
-        <div class="stat"><span class="stat-num" id="rKcal">–</span><span class="stat-lbl">calorías/día 🔥</span></div>
-        <div class="stat"><span class="stat-num" id="rImc">–</span><span class="stat-lbl">IMC</span></div>
-      </div>
-      <div class="health-detail" id="healthDetail"></div>
-      <p class="muted" style="margin-top:12px">💡 Es una guía general basada en fórmulas estándar, no una indicación médica. Para un plan a medida consultá a un nutricionista o médico.</p>
-    </section>
+    <p class="muted" style="margin:0 4px 14px">Tus registros del día. Todo se guarda <strong>solo en este celular</strong>.</p>
 
     <section class="card">
       <h3>💧 Agua de hoy <span class="today-tag" id="waterDate"></span> <button class="reset-day" id="resetWater">↺ reiniciar</button></h3>
@@ -281,6 +213,26 @@
       <label class="goal-label" style="margin-top:14px">Meta de vasos por día (1 vaso ≈ 250 ml)
         <input type="number" id="waterGoalInput" min="1" max="20" value="8">
       </label>
+    </section>
+
+    <section class="card">
+      <h3>💊 Vitaminas / Suplementos de hoy</h3>
+      <p class="muted">Marcá la palomita cuando lo tomes. Se reinicia cada día.</p>
+      <div class="supp-slot">
+        <h4>🌅 Mañana</h4>
+        <div id="suppList-manana"></div>
+        <div class="supp-add"><input id="suppInput-manana" class="full-input" placeholder="Agregar a la mañana…"><button class="btn-primary" data-add="manana">＋</button></div>
+      </div>
+      <div class="supp-slot">
+        <h4>☀️ Tarde</h4>
+        <div id="suppList-tarde"></div>
+        <div class="supp-add"><input id="suppInput-tarde" class="full-input" placeholder="Agregar a la tarde…"><button class="btn-primary" data-add="tarde">＋</button></div>
+      </div>
+      <div class="supp-slot">
+        <h4>🌙 Noche</h4>
+        <div id="suppList-noche"></div>
+        <div class="supp-add"><input id="suppInput-noche" class="full-input" placeholder="Agregar a la noche…"><button class="btn-primary" data-add="noche">＋</button></div>
+      </div>
     </section>
 
     <section class="card">
@@ -338,6 +290,54 @@
         <button class="btn-primary" id="bwSave2">Guardar</button>
       </div>
       <p class="muted">Podés ver la evolución en la pestaña <strong>Progreso</strong>.</p>
+    </section>
+
+    <section class="card">
+      <h3>Tu perfil</h3>
+      <div class="profile-grid">
+        <label>Sexo
+          <select id="pSex"><option value="F">Mujer</option><option value="M">Hombre</option></select>
+        </label>
+        <label>Edad
+          <input type="number" id="pAge" inputmode="numeric" placeholder="29">
+        </label>
+        <label>Altura (cm)
+          <input type="number" id="pHeight" inputmode="numeric" placeholder="156">
+        </label>
+        <label>Peso (kg)
+          <input type="number" id="pWeight" inputmode="decimal" step="0.1" placeholder="64.4">
+        </label>
+        <label>% Grasa (opcional)
+          <input type="number" id="pFat" inputmode="decimal" step="0.1" placeholder="41">
+        </label>
+        <label>Actividad
+          <select id="pAct">
+            <option value="1.2">Sedentaria</option>
+            <option value="1.375" selected>Ligera (1-3 días)</option>
+            <option value="1.55">Moderada (3-5 días)</option>
+            <option value="1.725">Alta (6-7 días)</option>
+          </select>
+        </label>
+      </div>
+      <label class="goal-label">Mi objetivo
+        <select id="pGoal">
+          <option value="perder">Bajar grasa</option>
+          <option value="recomp" selected>Recomposición (bajar grasa + músculo)</option>
+          <option value="ganar">Ganar músculo</option>
+        </select>
+      </label>
+      <button class="btn-primary big" id="pSave" style="margin-top:12px">Calcular mis objetivos</button>
+    </section>
+
+    <section class="card hidden" id="healthResults">
+      <h3>Tus objetivos personalizados</h3>
+      <div class="stat-grid">
+        <div class="stat"><span class="stat-num" id="rProtein">–</span><span class="stat-lbl">proteína g/día 🥩</span></div>
+        <div class="stat"><span class="stat-num" id="rKcal">–</span><span class="stat-lbl">calorías/día 🔥</span></div>
+        <div class="stat"><span class="stat-num" id="rImc">–</span><span class="stat-lbl">IMC</span></div>
+      </div>
+      <div class="health-detail" id="healthDetail"></div>
+      <p class="muted" style="margin-top:12px">💡 Es una guía general basada en fórmulas estándar, no una indicación médica. Para un plan a medida consultá a un nutricionista o médico.</p>
     </section>
   </main>
 

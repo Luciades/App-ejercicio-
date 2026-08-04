@@ -874,11 +874,12 @@ function renderInsight() {
 }
 
 function renderSalud() {
-  loadProfileForm();
+  renderWater();
+  renderSupps();
+  renderOura();
   loadCycleForm();
   renderCycle();
-  renderOura();
-  renderWater();
+  loadProfileForm();
 }
 
 /* ============================================================
@@ -1078,7 +1079,7 @@ function renderSupps() {
   $$('.supp-del').forEach(b => b.onclick = () => delSupp(b.dataset.slot, b.dataset.d));
 }
 
-function renderComida() { renderPortions(); renderEquiv(); renderSupps(); }
+function renderComida() { renderPortions(); renderEquiv(); }
 
 /* ============================================================
    OTRAS ACTIVIDADES — pilates, flow, pádel…
