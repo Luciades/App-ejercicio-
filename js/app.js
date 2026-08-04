@@ -1179,9 +1179,7 @@ function init() {
   // salud · perfil
   $('#pSave').onclick = saveProfile;
 
-  // agua
-  $('#waterPlus').onclick = () => setWater(1);
-  $('#waterMinus').onclick = () => setWater(-1);
+  // agua: los +/- y reiniciar se manejan por delegación global (siempre activos)
   $('#waterGoalInput').onchange = e => {
     let g = parseInt(e.target.value) || 8; g = Math.max(1, Math.min(20, g));
     state.waterGoal = g; save(); renderWater();
@@ -1217,7 +1215,6 @@ function init() {
   // comida
   $('#equivSearch').oninput = renderEquiv;
   $('#resetPortions').onclick = () => { state.portions[todayStr()] = {}; save(); renderPortions(); toast('Porciones de hoy reiniciadas ↺'); };
-  $('#resetWater').onclick = () => { state.water[todayStr()] = 0; save(); renderWater(); toast('Agua de hoy reiniciada ↺'); };
   $('#offBtn').onclick = searchOFF;
   $('#offSearch').onkeydown = e => { if (e.key === 'Enter') searchOFF(); };
   $$('[data-add]').forEach(b => b.onclick = () => addSupp(b.dataset.add));
@@ -1258,5 +1255,15 @@ function init() {
     });
   }
 }
+
+// Controles de agua a prueba de fallos: delegación a nivel documento.
+// Quedan activos aunque el arranque en frío no rebindee handlers.
+document.addEventListener('click', function (e) {
+  const b = (e.target && e.target.closest) ? e.target.closest('button') : null;
+  if (!b) return;
+  if (b.id === 'waterPlus') { setWater(1); }
+  else if (b.id === 'waterMinus') { setWater(-1); }
+  else if (b.id === 'resetWater') { state.water[todayStr()] = 0; save(); renderWater(); toast('Agua de hoy reiniciada ↺'); }
+});
 
 document.addEventListener('DOMContentLoaded', init);
