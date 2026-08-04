@@ -72,14 +72,6 @@ function lastNDates(n) {
 }
 
 /* ---------- Helpers de datos ---------- */
-function weekIndexOf(ds) { return Math.floor((new Date(ds + 'T00:00:00').getTime() + 3 * 86400000) / (7 * 86400000)); }
-function weekIndex() { return weekIndexOf(todayStr()); }
-// Cuántas veces (días distintos) completaste este día antes de hoy → rota variantes
-function daySessions(day) {
-  const dates = new Set();
-  state.history.forEach(h => { if ((h.dayId === day.id || h.day === day.name) && h.date < todayStr()) dates.add(h.date); });
-  return dates.size;
-}
 let dayRot = 0;
 
 // Elección "base" de un ejercicio (rotación semanal o selección manual)
@@ -108,7 +100,7 @@ function manualPick(ex) {
 // se corren para no repetir ejercicio.
 let dayResolved = {};
 function resolveDay(day) {
-  dayRot = daySessions(day);
+  dayRot = dayCount(day); // veces completado → índice de rotación
   dayResolved = {};
   const used = new Set();
   // Paso 1: honrar elecciones manuales

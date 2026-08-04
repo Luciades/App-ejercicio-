@@ -1,6 +1,6 @@
 /* Service worker — cachea la app para usarla sin internet.
    Las imágenes de los ejercicios se guardan a medida que se cargan. */
-const CACHE = 'mi-rutina-v7';
+const CACHE = 'mi-rutina-v8';
 
 self.addEventListener('message', e => { if (e.data === 'skip') self.skipWaiting(); });
 const CORE = [
