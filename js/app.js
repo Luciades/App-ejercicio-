@@ -26,6 +26,7 @@ const defaultState = () => ({
   suppLog: {},    // { 'YYYY-MM-DD': { 'manana|Vitamina D': true } }
   breakfast: ['Kefir', 'Agua con ghee'], // romper ayuno
   breakfastLog: {},
+  recetaSeeded: false, // se autocarga la receta una vez
   settings: { dark: true, sound: true, anim: true, unit: 'lb', autoRotate: true, ouraAdapt: true, cycleAdapt: true },
 });
 
@@ -1190,6 +1191,11 @@ function toast(msg) {
 function init() {
   if (!storageOK()) showStorageWarn();
   const ver = $('#appVer'); if (ver && typeof APP_VERSION === 'string') ver.textContent = APP_VERSION;
+  // Autocarga la receta una sola vez (para tener las vitaminas listas para hacer check)
+  if (!state.recetaSeeded) {
+    Object.keys(RECETA).forEach(slot => RECETA[slot].forEach(n => { if (!state.supps[slot].includes(n)) state.supps[slot].push(n); }));
+    state.recetaSeeded = true; save();
+  }
   applySettings();
   renderTabs();
   renderDay();
