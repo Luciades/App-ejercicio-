@@ -3,7 +3,7 @@
    Imágenes: free-exercise-db (2 frames -> se animan tipo GIF)
    ============================================================ */
 
-const APP_VERSION = 'v14 · rutina en casa';
+const APP_VERSION = 'v15 · fix flexiones dup';
 const RAW = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
 function frames(id) { return [RAW + id + '/0.jpg', RAW + id + '/1.jpg']; }
 function yt(name) { return 'https://www.youtube.com/results?search_query=' + encodeURIComponent('como hacer ' + name + ' tecnica'); }
@@ -288,17 +288,17 @@ const ROUTINE_CASA = {
     {
       id: 'c1', name: 'Día 1', focus: 'Pecho y Tríceps', emoji: '💪', warm: 'torso',
       exercises: [
-        { key:'c1e1', name:'Press de pecho', opts:['Dumbbell_Bench_Press','Bench_Press_-_With_Bands','Pushups'], sets:4, reps:'10–12', rest:90, lb:11, inc:2 },
+        { key:'c1e1', name:'Press de pecho', opts:['Dumbbell_Bench_Press','Bench_Press_-_With_Bands'], sets:4, reps:'10–12', rest:90, lb:11, inc:2 },
         { key:'c1e2', name:'Flexiones', opts:['Pushups'], sets:3, reps:'8–15', rest:60, lb:0, inc:0 },
         { key:'c1e3', name:'Aperturas', opts:['Dumbbell_Flyes'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
-        { key:'c1e4', name:'Rompecráneos', opts:['Band_Skull_Crusher','Tricep_Dumbbell_Kickback'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
+        { key:'c1e4', name:'Rompecráneos', opts:['Band_Skull_Crusher','Standing_Dumbbell_Triceps_Extension'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
         { key:'c1e5', name:'Patada de tríceps', opts:['Tricep_Dumbbell_Kickback'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
       ],
     },
     {
       id: 'c2', name: 'Día 2', focus: 'Espalda y Bíceps', emoji: '🔙', warm: 'torso',
       exercises: [
-        { key:'c2e1', name:'Remo a un brazo', opts:['One-Arm_Dumbbell_Row','Bent_Over_Two-Dumbbell_Row'], sets:4, reps:'10–12', rest:90, lb:11, inc:2 },
+        { key:'c2e1', name:'Remo a un brazo', opts:['One-Arm_Dumbbell_Row'], sets:4, reps:'10–12', rest:90, lb:11, inc:2 },
         { key:'c2e2', name:'Remo con mancuernas', opts:['Bent_Over_Two-Dumbbell_Row'], sets:3, reps:'10–12', rest:75, lb:11, inc:2 },
         { key:'c2e3', name:'Pull apart con banda', opts:['Band_Pull_Apart'], sets:3, reps:'15–20', rest:60, lb:0, inc:0 },
         { key:'c2e4', name:'Pullover', opts:['Bent-Arm_Dumbbell_Pullover'], sets:3, reps:'12–15', rest:60, lb:11, inc:2 },
