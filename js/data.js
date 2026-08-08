@@ -3,7 +3,7 @@
    Imágenes: free-exercise-db (2 frames -> se animan tipo GIF)
    ============================================================ */
 
-const APP_VERSION = 'v13 · receta auto';
+const APP_VERSION = 'v14 · rutina en casa';
 const RAW = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
 function frames(id) { return [RAW + id + '/0.jpg', RAW + id + '/1.jpg']; }
 function yt(name) { return 'https://www.youtube.com/results?search_query=' + encodeURIComponent('como hacer ' + name + ' tecnica'); }
@@ -143,6 +143,77 @@ const EX = {
   'Cable_Rear_Delt_Fly': { es:'Aperturas posteriores en polea', musc:'Hombro posterior', equip:'Poleas',
     setup:'Poleas cruzadas a la altura de los hombros, agarrás la manija opuesta con cada mano.',
     tip:'Abrí en cruz hacia atrás, sin usar la espalda. Foco en el deltoides posterior.' },
+
+  // ========== EN CASA / VIAJE (bandas, pelota, mancuernas livianas) ==========
+  'Pushups': { es:'Flexiones', musc:'Pecho', equip:'Peso corporal',
+    setup:'En el piso, manos un poco más anchas que los hombros, cuerpo en línea recta.',
+    tip:'Bajá el pecho casi al piso, codos a ~45°, subí sin arquear la cintura. Podés apoyar las rodillas.' },
+  'Bench_Press_-_With_Bands': { es:'Press de pecho con banda', musc:'Pecho', equip:'Banda',
+    setup:'Pasá la banda por detrás de la espalda, un extremo en cada mano a la altura del pecho.',
+    tip:'Empujá al frente estirando los brazos, volvé controlando la tensión de la banda.' },
+  'Band_Skull_Crusher': { es:'Rompecráneos con banda', musc:'Tríceps', equip:'Banda',
+    setup:'Fijá la banda atrás (o pisala); agarrá los extremos con las manos detrás de la cabeza.',
+    tip:'Estirá los codos hacia adelante-arriba, mantené los codos quietos.' },
+  'Tricep_Dumbbell_Kickback': { es:'Patada de tríceps con mancuerna', musc:'Tríceps', equip:'Mancuernas',
+    setup:'Tronco inclinado al frente, codo pegado al costado y flexionado 90°.',
+    tip:'Estirá el brazo hacia atrás apretando el tríceps, sin mover el codo.' },
+  'One-Arm_Dumbbell_Row': { es:'Remo a un brazo con mancuerna', musc:'Espalda', equip:'Mancuernas',
+    setup:'Apoyá una rodilla y una mano en una silla o cama, espalda recta, mancuerna colgando.',
+    tip:'Remá la mancuerna hacia la cadera, codo pegado. Bajá controlando.' },
+  'Band_Pull_Apart': { es:'Aperturas con banda (pull apart)', musc:'Espalda alta / Hombro posterior', equip:'Banda larga',
+    setup:'De pie, sostené la banda al frente a la altura del pecho, brazos estirados.',
+    tip:'Abrí los brazos separando la banda y juntando los omóplatos. Volvé lento.' },
+  'Bent-Arm_Dumbbell_Pullover': { es:'Pullover con mancuerna', musc:'Espalda / Pecho', equip:'Mancuernas',
+    setup:'Acostada (en el piso o sobre la pelota), una mancuerna con ambas manos sobre el pecho.',
+    tip:'Llevá la mancuerna por detrás de la cabeza estirando, y volvé al pecho.' },
+  'Dumbbell_Bicep_Curl': { es:'Curl de bíceps con mancuernas', musc:'Bíceps', equip:'Mancuernas',
+    setup:'De pie, mancuernas a los costados, palmas al frente.',
+    tip:'Subí sin balancear, apretá arriba y bajá lento.' },
+  'Dumbbell_Squat': { es:'Sentadilla con mancuernas', musc:'Cuádriceps / Glúteos', equip:'Mancuernas',
+    setup:'De pie, mancuernas a los costados o sobre los hombros, pies a la anchura de hombros.',
+    tip:'Bajá sacando la cola hasta muslos paralelos, subí empujando con los talones.' },
+  'Dumbbell_Lunges': { es:'Zancadas con mancuernas', musc:'Cuádriceps / Glúteos', equip:'Mancuernas',
+    setup:'De pie con mancuernas a los costados, dá un paso largo al frente.',
+    tip:'Bajá la rodilla de atrás casi al piso con el tronco recto. Alterná piernas.' },
+  'Stiff-Legged_Dumbbell_Deadlift': { es:'Peso muerto rumano con mancuernas', musc:'Femoral / Glúteos', equip:'Mancuernas',
+    setup:'De pie, mancuernas al frente de los muslos, rodillas apenas flexionadas.',
+    tip:'Llevá la cola atrás bajando las mancuernas pegadas a las piernas. Espalda recta.' },
+  'Plie_Dumbbell_Squat': { es:'Sentadilla sumo con mancuerna', musc:'Glúteos / Aductores', equip:'Mancuernas',
+    setup:'Pies anchos con las puntas hacia afuera, una mancuerna sostenida entre las piernas.',
+    tip:'Bajá recto entre los talones, apretá los glúteos al subir.' },
+  'Single_Leg_Glute_Bridge': { es:'Puente de glúteo a una pierna', musc:'Glúteos', equip:'Peso corporal',
+    setup:'Boca arriba, una pierna flexionada apoyada y la otra estirada.',
+    tip:'Subí la cadera apretando el glúteo de la pierna de apoyo. Alterná.' },
+  'Physioball_Hip_Bridge': { es:'Puente de cadera en pelota', musc:'Glúteos / Femoral', equip:'Pelota de pilates',
+    setup:'Hombros apoyados en la pelota, pies en el piso, cadera abajo.',
+    tip:'Subí la cadera hasta alinear el cuerpo y apretá glúteos. Estabilizá la pelota.' },
+  'Butt_Lift_Bridge': { es:'Puente de glúteos', musc:'Glúteos', equip:'Peso corporal',
+    setup:'Boca arriba, rodillas flexionadas, pies apoyados cerca de la cola.',
+    tip:'Subí la cadera apretando glúteos, pausá arriba. Podés apoyar una mancuerna encima.' },
+  'Squats_-_With_Bands': { es:'Sentadilla con banda', musc:'Cuádriceps / Glúteos', equip:'Banda',
+    setup:'Pisá la banda con ambos pies y pasá los extremos por encima de los hombros.',
+    tip:'Sentadilla normal; la banda suma resistencia al subir.' },
+  'Hip_Extension_with_Bands': { es:'Extensión de cadera con banda', musc:'Glúteos', equip:'Banda',
+    setup:'Banda en el tobillo, fijada al frente. De pie, sujetate de algo firme.',
+    tip:'Llevá la pierna hacia atrás apretando el glúteo, sin arquear la espalda.' },
+  'Calf_Raises_-_With_Bands': { es:'Elevación de gemelos con banda', musc:'Gemelos', equip:'Banda',
+    setup:'Sentada o de pie, banda sobre la punta de los pies sujetada con las manos.',
+    tip:'Subí en puntas de pie contra la banda, bajá estirando el gemelo.' },
+  'Arnold_Dumbbell_Press': { es:'Press Arnold', musc:'Hombros', equip:'Mancuernas',
+    setup:'Sentada, mancuernas al frente con las palmas hacia vos.',
+    tip:'Girá las palmas al frente mientras empujás hacia arriba. Volvé girando.' },
+  'Seated_Side_Lateral_Raise': { es:'Elevaciones laterales sentada', musc:'Hombro lateral', equip:'Mancuernas',
+    setup:'Sentada, mancuernas a los costados, codos apenas flexionados.',
+    tip:'Subí a los costados hasta la altura de los hombros. Bajá lento.' },
+  'One-Arm_Side_Laterals': { es:'Elevación lateral a un brazo', musc:'Hombro lateral', equip:'Mancuernas',
+    setup:'De pie, sujetate con una mano, mancuerna en la otra.',
+    tip:'Subí la mancuerna al costado hasta la altura del hombro. Alterná.' },
+  'Lateral_Raise_-_With_Bands': { es:'Elevaciones laterales con banda', musc:'Hombro lateral', equip:'Banda',
+    setup:'Pisá la banda con un pie y agarrá los extremos a los costados.',
+    tip:'Subí los brazos a los costados contra la banda. Controlá la bajada.' },
+  'Reverse_Flyes': { es:'Aperturas invertidas con mancuernas', musc:'Hombro posterior', equip:'Mancuernas',
+    setup:'Tronco inclinado al frente, mancuernas colgando, codos apenas flexionados.',
+    tip:'Abrí los brazos hacia atrás apretando la parte de atrás del hombro.' },
 };
 
 /* Warmup (calentamiento) por día */
@@ -201,6 +272,60 @@ const ROUTINE = {
         { key:'d4e4', name:'Elevaciones frontales', opts:['Front_Dumbbell_Raise'], sets:3, reps:'12–15', rest:60, lb:10, inc:5 },
         { key:'d4e5', name:'Curl de bíceps', opts:['EZ-Bar_Curl','Barbell_Curl','Cable_Hammer_Curls_-_Rope_Attachment'], sets:3, reps:'10–12', rest:60, lb:30, inc:5 },
         { key:'d4e6', name:'Tríceps en polea', opts:['Triceps_Pushdown_-_Rope_Attachment','Triceps_Pushdown','Reverse_Grip_Triceps_Pushdown'], sets:3, reps:'12–15', rest:60, lb:30, inc:5 },
+      ],
+    },
+  ],
+};
+
+/* ============================================================
+   RUTINA EN CASA / VIAJE · bandas, pelota, mancuernas livianas
+   Pesos en el mismo campo (poné tu kg o ignoralo en bandas)
+   ============================================================ */
+const ROUTINE_CASA = {
+  version: 1,
+  title: 'En casa · 4 días',
+  days: [
+    {
+      id: 'c1', name: 'Día 1', focus: 'Pecho y Tríceps', emoji: '💪', warm: 'torso',
+      exercises: [
+        { key:'c1e1', name:'Press de pecho', opts:['Dumbbell_Bench_Press','Bench_Press_-_With_Bands','Pushups'], sets:4, reps:'10–12', rest:90, lb:11, inc:2 },
+        { key:'c1e2', name:'Flexiones', opts:['Pushups'], sets:3, reps:'8–15', rest:60, lb:0, inc:0 },
+        { key:'c1e3', name:'Aperturas', opts:['Dumbbell_Flyes'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
+        { key:'c1e4', name:'Rompecráneos', opts:['Band_Skull_Crusher','Tricep_Dumbbell_Kickback'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
+        { key:'c1e5', name:'Patada de tríceps', opts:['Tricep_Dumbbell_Kickback'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
+      ],
+    },
+    {
+      id: 'c2', name: 'Día 2', focus: 'Espalda y Bíceps', emoji: '🔙', warm: 'torso',
+      exercises: [
+        { key:'c2e1', name:'Remo a un brazo', opts:['One-Arm_Dumbbell_Row','Bent_Over_Two-Dumbbell_Row'], sets:4, reps:'10–12', rest:90, lb:11, inc:2 },
+        { key:'c2e2', name:'Remo con mancuernas', opts:['Bent_Over_Two-Dumbbell_Row'], sets:3, reps:'10–12', rest:75, lb:11, inc:2 },
+        { key:'c2e3', name:'Pull apart con banda', opts:['Band_Pull_Apart'], sets:3, reps:'15–20', rest:60, lb:0, inc:0 },
+        { key:'c2e4', name:'Pullover', opts:['Bent-Arm_Dumbbell_Pullover'], sets:3, reps:'12–15', rest:60, lb:11, inc:2 },
+        { key:'c2e5', name:'Curl de bíceps', opts:['Dumbbell_Bicep_Curl','Hammer_Curls'], sets:4, reps:'10–12', rest:60, lb:5, inc:2 },
+        { key:'c2e6', name:'Curl martillo', opts:['Hammer_Curls','Alternate_Hammer_Curl'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
+      ],
+    },
+    {
+      id: 'c3', name: 'Día 3', focus: 'Piernas y Glúteos', emoji: '🦵', warm: 'pierna',
+      exercises: [
+        { key:'c3e1', name:'Sentadilla', opts:['Dumbbell_Squat','Squats_-_With_Bands'], sets:4, reps:'10–15', rest:90, lb:11, inc:2 },
+        { key:'c3e2', name:'Zancadas', opts:['Dumbbell_Lunges'], sets:3, reps:'10–12', rest:75, lb:5, inc:2 },
+        { key:'c3e3', name:'Peso muerto rumano', opts:['Stiff-Legged_Dumbbell_Deadlift'], sets:4, reps:'10–12', rest:90, lb:11, inc:2 },
+        { key:'c3e4', name:'Sentadilla sumo', opts:['Plie_Dumbbell_Squat'], sets:3, reps:'12–15', rest:60, lb:11, inc:2 },
+        { key:'c3e5', name:'Puente de glúteos', opts:['Butt_Lift_Bridge','Single_Leg_Glute_Bridge','Physioball_Hip_Bridge'], sets:3, reps:'12–20', rest:60, lb:0, inc:0 },
+        { key:'c3e6', name:'Extensión de cadera con banda', opts:['Hip_Extension_with_Bands'], sets:3, reps:'15–20', rest:45, lb:0, inc:0 },
+        { key:'c3e7', name:'Gemelos con banda', opts:['Calf_Raises_-_With_Bands'], sets:4, reps:'15–20', rest:45, lb:0, inc:0 },
+      ],
+    },
+    {
+      id: 'c4', name: 'Día 4', focus: 'Hombros y Brazos', emoji: '🏔️', warm: 'torso',
+      exercises: [
+        { key:'c4e1', name:'Press de hombros', opts:['Dumbbell_Shoulder_Press','Arnold_Dumbbell_Press'], sets:4, reps:'8–12', rest:90, lb:5, inc:2 },
+        { key:'c4e2', name:'Elevaciones laterales', opts:['Seated_Side_Lateral_Raise','Lateral_Raise_-_With_Bands','One-Arm_Side_Laterals'], sets:4, reps:'12–15', rest:60, lb:4, inc:2 },
+        { key:'c4e3', name:'Hombro posterior', opts:['Reverse_Flyes','Band_Pull_Apart'], sets:3, reps:'15–20', rest:60, lb:4, inc:2 },
+        { key:'c4e4', name:'Curl de bíceps', opts:['Dumbbell_Bicep_Curl'], sets:3, reps:'10–12', rest:60, lb:5, inc:2 },
+        { key:'c4e5', name:'Patada de tríceps', opts:['Tricep_Dumbbell_Kickback','Band_Skull_Crusher'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
       ],
     },
   ],

@@ -27,6 +27,7 @@ const defaultState = () => ({
   breakfast: ['Kefir', 'Agua con ghee'], // romper ayuno
   breakfastLog: {},
   recetaSeeded: false, // se autocarga la receta una vez
+  routineMode: 'gym', // 'gym' | 'casa'
   settings: { dark: true, sound: true, anim: true, unit: 'lb', autoRotate: true, ouraAdapt: true, cycleAdapt: true },
 });
 
@@ -167,6 +168,8 @@ function midReps(reps) {
 // Aclara si el peso es por mancuerna o total, según el equipo
 function weightHint(equip) {
   const e = (equip || '').toLowerCase();
+  if (e.includes('banda')) return '💡 <strong>Banda</strong> — enfocate en las repeticiones y la tensión';
+  if (e.includes('corporal') || e.includes('pelota')) return '💡 <strong>Peso corporal</strong> — enfocate en las repeticiones';
   if (e.includes('mancuerna')) return '💡 Peso <strong>por mancuerna</strong> (cada mano)';
   if (e.includes('barra') || e.includes('smith')) return '💡 Peso <strong>total</strong> (la barra vacía ya pesa ~45 lb)';
   return '💡 Peso <strong>total</strong> (el número de la placa/máquina)';
@@ -183,14 +186,17 @@ function dayCount(day) {
 }
 // Ronda actual = mínimo de vueltas completas entre los 4 días
 function currentRound() {
-  const counts = ROUTINE.days.map(dayCount);
+  const counts = activeRoutine().days.map(dayCount);
   return counts.length ? Math.min(...counts) : 0;
 }
+
+// Rutina activa según el modo elegido (gym o casa)
+function activeRoutine() { return state.routineMode === 'casa' ? ROUTINE_CASA : ROUTINE; }
 
 function renderTabs() {
   const tabs = $('#dayTabs');
   const round = currentRound();
-  tabs.innerHTML = ROUTINE.days.map((d, i) => {
+  tabs.innerHTML = activeRoutine().days.map((d, i) => {
     const done = dayCount(d) > round; // hecho en la ronda actual
     return `<button class="day-tab ${i === currentDay ? 'active' : ''} ${done ? 'done' : ''}" data-i="${i}">
        <span class="dt-emoji">${done ? '✅' : d.emoji}</span>
@@ -201,7 +207,7 @@ function renderTabs() {
 }
 
 function renderDay() {
-  const d = ROUTINE.days[currentDay];
+  const d = activeRoutine().days[currentDay];
   resolveDay(d); // evita ejercicios duplicados en el mismo día
   $('#headerSub').textContent = `${d.name} · ${d.focus}`;
   const totalSets = d.exercises.reduce((a, e) => a + effectiveSets(e), 0);
@@ -332,7 +338,7 @@ function wireCards() {
 }
 
 function findEx(key) {
-  for (const d of ROUTINE.days) for (const e of d.exercises) if (e.key === key) return e;
+  for (const d of activeRoutine().days) for (const e of d.exercises) if (e.key === key) return e;
 }
 
 /* ============================================================
@@ -424,7 +430,7 @@ function beep() {
    TERMINAR ENTRENAMIENTO -> guarda sesión
    ============================================================ */
 function finishWorkout() {
-  const d = ROUTINE.days[currentDay];
+  const d = activeRoutine().days[currentDay];
   let volume = 0, doneSets = 0;
   d.exercises.forEach(ex => {
     const w = weightOf(ex);
@@ -438,7 +444,7 @@ function finishWorkout() {
   state.history = state.history.slice(0, 60);
   save();
   renderTabs();
-  const counts = ROUTINE.days.map(dayCount);
+  const counts = activeRoutine().days.map(dayCount);
   const mn = Math.min(...counts);
   if (mn > 0 && mn === Math.max(...counts)) {
     toast(`🎉 ¡Completaste la ronda ${mn}! Se reinician las palomitas y la próxima vez cada día sale con ejercicios rotados 🔁`);
@@ -1199,6 +1205,13 @@ function init() {
   applySettings();
   renderTabs();
   renderDay();
+
+  $$('.mode-toggle button').forEach(b => b.onclick = () => {
+    state.routineMode = b.dataset.mode; save();
+    currentDay = 0; renderTabs(); renderDay();
+    $$('.mode-toggle button').forEach(x => x.classList.toggle('active', x.dataset.mode === state.routineMode));
+  });
+  $$('.mode-toggle button').forEach(b => b.classList.toggle('active', b.dataset.mode === state.routineMode));
 
   $$('.nav-btn').forEach(b => b.onclick = () => setView(b.dataset.view));
   $('#settingsBtn').onclick = () => setView('settings');

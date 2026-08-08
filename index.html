@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
-  <link rel="stylesheet" href="css/styles.css?v=13">
+  <link rel="stylesheet" href="css/styles.css?v=14">
 </head>
 <body>
   <!-- ================= HEADER ================= -->
@@ -30,6 +30,10 @@
 
   <!-- ================= VISTA: RUTINA ================= -->
   <main id="view-routine" class="view">
+    <div class="mode-toggle">
+      <button data-mode="gym" class="active">🏋️ Gym</button>
+      <button data-mode="casa">🏝️ En casa</button>
+    </div>
     <div class="day-tabs" id="dayTabs"></div>
     <div class="day-head" id="dayHead"></div>
     <div id="insightBanner" class="insight hidden"></div>
@@ -381,7 +385,7 @@
   <!-- Toast -->
   <div id="toast" class="toast hidden"></div>
 
-  <script src="js/data.js?v=13"></script>
-  <script src="js/app.js?v=13"></script>
+  <script src="js/data.js?v=14"></script>
+  <script src="js/app.js?v=14"></script>
 </body>
 </html>

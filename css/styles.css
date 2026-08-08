@@ -63,6 +63,10 @@ h1, h2, h3 { line-height: 1.2; }
 .view-title { font-size: 1.3rem; margin: 6px 4px 14px; }
 
 /* ---------- Tabs de días ---------- */
+.mode-toggle { display: flex; gap: 8px; margin-bottom: 12px; }
+.mode-toggle button { flex: 1; background: var(--card); border: 1px solid var(--line); color: var(--muted); border-radius: 12px; padding: 10px; font-weight: 700; font-size: .9rem; cursor: pointer; }
+.mode-toggle button.active { background: linear-gradient(120deg, var(--accent), var(--accent2)); color: #fff; border-color: transparent; box-shadow: var(--shadow); }
+
 .day-tabs { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 14px; }
 .day-tab {
   background: var(--card); border: 1px solid var(--line); border-radius: 14px;
