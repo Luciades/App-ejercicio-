@@ -265,7 +265,7 @@ function cardHTML(ex) {
       <div class="gif ${state.settings.anim ? '' : 'no-anim'}">
         <img class="f0" src="${f0}" alt="${info.es}" loading="lazy" onerror="this.closest('.gif').classList.add('broken')">
         <img class="f1" src="${f1}" alt="" loading="lazy">
-        <div class="gif-fallback">🏋️<span>${info.es}</span></div>
+        <div class="gif-fallback">🏋️<span>${info.es}</span><a class="fb-yt" href="${yt(info.es)}" target="_blank" rel="noopener">▶️ Ver demo en YouTube</a></div>
       </div>
     </div>
     <div class="ex-body">

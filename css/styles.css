@@ -110,6 +110,7 @@ body.anim-b .gif:not(.no-anim) .f1 { opacity: 1; }
   gap: 8px; background: var(--card2); color: var(--muted); font-size: 2.4rem;
 }
 .gif-fallback span { font-size: .9rem; text-align: center; padding: 0 12px; }
+.gif-fallback .fb-yt { font-size: .82rem; color: var(--accent2); font-weight: 700; text-decoration: none; background: rgba(0,0,0,.06); padding: 4px 10px; border-radius: 999px; }
 .gif.broken img { display: none; }
 .gif.broken .gif-fallback { display: flex; }
 

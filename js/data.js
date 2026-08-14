@@ -3,7 +3,7 @@
    Imágenes: free-exercise-db (2 frames -> se animan tipo GIF)
    ============================================================ */
 
-const APP_VERSION = 'v18 · barco brazo con ligas';
+const APP_VERSION = 'v19 · barco brazo mini band';
 const RAW = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
 function frames(id) { return [RAW + id + '/0.jpg', RAW + id + '/1.jpg']; }
 function yt(name) { return 'https://www.youtube.com/results?search_query=' + encodeURIComponent('como hacer ' + name + ' tecnica'); }
@@ -219,21 +219,15 @@ const EX = {
   'Incline_Push-Up': { es:'Flexiones inclinadas', musc:'Pecho superior', equip:'Peso corporal',
     setup:'Manos sobre una superficie elevada (banco, borde, escalón), cuerpo en línea recta.',
     tip:'Bajá el pecho a la superficie y empujá. Cuanto más alta la superficie, más fácil.' },
-  'Speed_Band_Overhead_Triceps': { es:'Tríceps sobre la cabeza con banda', musc:'Tríceps', equip:'Liga cerrada',
-    setup:'Una mano detrás de la espalda baja sujeta un lado de la liga; la otra mano toma el otro lado por detrás de la cabeza, codo apuntando arriba.',
-    tip:'Estirá el codo de arriba hacia el techo contra la liga, sin moverlo de lugar. Alterná brazos.' },
-  'Standing_Biceps_Cable_Curl': { es:'Curl de bíceps con banda', musc:'Bíceps', equip:'Liga cerrada',
-    setup:'Pisá un lado de la liga cerrada con un pie y agarrá el otro lado con la mano, palma al frente. (O sujetá un lado abajo con la mano contraria.)',
-    tip:'Subí flexionando el codo contra la liga, codo pegado al cuerpo. Bajá lento. Alterná brazos.' },
+  'Bench_Dips': { es:'Fondos de tríceps en banco', musc:'Tríceps', equip:'Peso corporal',
+    setup:'Manos en el borde de un banco/silla/escalón detrás tuyo, dedos hacia adelante.',
+    tip:'Bajá flexionando los codos hacia atrás y empujá. Fácil: pies cerca y rodillas flexionadas. Más difícil: piernas estiradas.' },
   'Superman': { es:'Superman (espalda baja)', musc:'Espalda baja / Glúteos', equip:'Peso corporal',
     setup:'Boca abajo, brazos estirados al frente y piernas estiradas.',
     tip:'Elevá al mismo tiempo brazos, pecho y piernas apretando la espalda y los glúteos. Pausá arriba.' },
   'Hyperextensions_With_No_Hyperextension_Bench': { es:'Extensión de espalda en el piso', musc:'Espalda baja / Glúteos', equip:'Peso corporal',
     setup:'Boca abajo, manos en las sienes o cruzadas en el pecho.',
     tip:'Elevá el pecho del piso apretando la espalda baja y los glúteos, bajá controlando. Sin tirones.' },
-  'External_Rotation_with_Band': { es:'Rotación externa con banda', musc:'Hombro posterior / Manguito', equip:'Liga cerrada',
-    setup:'Codos pegados al cuerpo y flexionados 90°, la liga cerrada chiquita alrededor de las dos muñecas.',
-    tip:'Abrí las manos hacia afuera contra la liga sin despegar los codos. Volvé lento.' },
   'Bodyweight_Squat': { es:'Sentadilla libre', musc:'Cuádriceps / Glúteos', equip:'Peso corporal',
     setup:'De pie, pies a la anchura de hombros, brazos al frente para equilibrio.',
     tip:'Bajá sacando la cola hasta muslos paralelos, subí con los talones. Hacela lenta para más intensidad.' },
@@ -255,6 +249,30 @@ const EX = {
   'Rear_Leg_Raises': { es:'Elevación de pierna hacia atrás', musc:'Glúteos', equip:'Liga cerrada',
     setup:'De pie sujetándote de algo firme. Liga cerrada arriba de los tobillos.',
     tip:'Llevá una pierna recta hacia atrás apretando el glúteo, sin arquear la espalda. Alterná.' },
+
+  // -- Brazo/hombro con liga cerrada chiquita (mini band). Sin GIF en la librería:
+  //    la app muestra el nombre + demo en YouTube (mini band), no una liga larga. --
+  'Press_pecho_mini_band': { es:'Press de pecho con mini band', musc:'Pecho', equip:'Liga cerrada',
+    setup:'Liga cerrada alrededor de las dos muñecas (o antebrazos). Manos al frente del pecho, codos flexionados.',
+    tip:'Empujá las manos al frente estirando los brazos contra la liga, apretando el pecho. Volvé lento.' },
+  'Curl_biceps_mini_band': { es:'Curl de bíceps con mini band', musc:'Bíceps', equip:'Liga cerrada',
+    setup:'Sentada o de pie. Pisá un lado de la liga cerrada con un pie (o sujetalo abajo con la otra mano) y agarrá el otro lado con la mano, palma al frente.',
+    tip:'Subí flexionando el codo contra la liga, codo pegado al cuerpo. Bajá lento. Alterná brazos. Abrí ⚙️ para el video.' },
+  'Triceps_patada_mini_band': { es:'Patada de tríceps con mini band', musc:'Tríceps', equip:'Liga cerrada',
+    setup:'Tronco algo inclinado. Pasá la liga cerrada alrededor de las dos muñecas; una mano queda fija a la altura del pecho/cadera.',
+    tip:'Estirá el otro brazo hacia atrás contra la liga, apretando el tríceps, sin mover el codo. Alterná.' },
+  'Triceps_encima_mini_band': { es:'Tríceps sobre la cabeza con mini band', musc:'Tríceps', equip:'Liga cerrada',
+    setup:'Liga cerrada alrededor de las dos muñecas. Una mano fija detrás de la espalda baja; la otra por detrás de la cabeza, codo apuntando arriba.',
+    tip:'Estirá el codo de arriba hacia el techo contra la liga, sin moverlo de lugar. Alterná brazos.' },
+  'Pull_apart_mini_band': { es:'Aperturas con mini band (pull apart)', musc:'Espalda alta / Hombro posterior', equip:'Liga cerrada',
+    setup:'Liga cerrada alrededor de las dos muñecas (o las manos). Brazos al frente a la altura del pecho.',
+    tip:'Abrí los brazos separando las manos contra la liga y juntando los omóplatos. Volvé lento.' },
+  'Lateral_mini_band': { es:'Elevaciones laterales con mini band', musc:'Hombro lateral', equip:'Liga cerrada',
+    setup:'Liga cerrada alrededor de las dos muñecas. De pie, brazos a los costados.',
+    tip:'Subí ambos brazos a los costados contra la liga hasta la altura de los hombros. Bajá lento.' },
+  'Rotacion_externa_mini_band': { es:'Rotación externa con mini band', musc:'Hombro posterior / Manguito', equip:'Liga cerrada',
+    setup:'Codos pegados al cuerpo y flexionados 90°, la liga cerrada alrededor de las dos muñecas.',
+    tip:'Abrí las manos hacia afuera contra la liga sin despegar los codos del cuerpo. Volvé lento.' },
 };
 
 /* Warmup (calentamiento) por día */
@@ -377,24 +395,28 @@ const ROUTINE_CASA = {
    Sin pesos ni ligas largas. Arriba: peso corporal. Abajo: liga cerrada.
    ============================================================ */
 const ROUTINE_BARCO = {
-  version: 3,
+  version: 4,
   title: 'Barco · 4 días',
   days: [
     {
       id: 'b1', name: 'Día 1', focus: 'Pecho y Tríceps', emoji: '💪', warm: 'torso',
       exercises: [
         { key:'b1e1', name:'Flexiones (fácil)', opts:['Incline_Push-Up'], sets:3, reps:'8–12', rest:60, lb:0, inc:0 },
-        { key:'b1e2', name:'Rompecráneos con banda', opts:['Band_Skull_Crusher'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
-        { key:'b1e3', name:'Tríceps sobre la cabeza con banda', opts:['Speed_Band_Overhead_Triceps'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+        { key:'b1e2', name:'Press de pecho con liga', opts:['Press_pecho_mini_band'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+        { key:'b1e3', name:'Tríceps sobre la cabeza con liga', opts:['Triceps_encima_mini_band'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+        { key:'b1e4', name:'Patada de tríceps con liga', opts:['Triceps_patada_mini_band'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+        { key:'b1e5', name:'Fondos de tríceps', opts:['Bench_Dips'], sets:3, reps:'8–15', rest:60, lb:0, inc:0 },
       ],
     },
     {
-      id: 'b2', name: 'Día 2', focus: 'Espalda y Bíceps', emoji: '🔙', warm: 'torso',
+      id: 'b2', name: 'Día 2', focus: 'Espalda, Hombros y Bíceps', emoji: '🔙', warm: 'torso',
       exercises: [
         { key:'b2e1', name:'Superman', opts:['Superman'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
         { key:'b2e2', name:'Extensión de espalda', opts:['Hyperextensions_With_No_Hyperextension_Bench'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
-        { key:'b2e3', name:'Pull apart con banda', opts:['Band_Pull_Apart'], sets:3, reps:'15–20', rest:60, lb:0, inc:0 },
-        { key:'b2e4', name:'Curl de bíceps con banda', opts:['Standing_Biceps_Cable_Curl'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+        { key:'b2e3', name:'Aperturas con liga (pull apart)', opts:['Pull_apart_mini_band'], sets:3, reps:'15–20', rest:60, lb:0, inc:0 },
+        { key:'b2e4', name:'Elevaciones laterales con liga', opts:['Lateral_mini_band'], sets:3, reps:'12–20', rest:60, lb:0, inc:0 },
+        { key:'b2e5', name:'Rotación externa con liga', opts:['Rotacion_externa_mini_band'], sets:3, reps:'15–20', rest:45, lb:0, inc:0 },
+        { key:'b2e6', name:'Curl de bíceps con liga', opts:['Curl_biceps_mini_band'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
       ],
     },
     {
@@ -403,19 +425,19 @@ const ROUTINE_BARCO = {
         { key:'b3e1', name:'Sentadilla con banda', opts:['Squats_-_With_Bands','Bodyweight_Squat'], sets:4, reps:'12–20', rest:75, lb:0, inc:0 },
         { key:'b3e2', name:'Subida al escalón', opts:['Step-up_with_Knee_Raise'], sets:3, reps:'10–12', rest:60, lb:0, inc:0 },
         { key:'b3e3', name:'Caminata lateral con banda', opts:['Monster_Walk'], sets:3, reps:'12–15', rest:45, lb:0, inc:0 },
-        { key:'b3e4', name:'Puente de glúteos', opts:['Butt_Lift_Bridge','Single_Leg_Glute_Bridge'], sets:3, reps:'12–20', rest:60, lb:0, inc:0 },
-        { key:'b3e5', name:'Patada de glúteo con banda', opts:['Glute_Kickback'], sets:3, reps:'12–15', rest:45, lb:0, inc:0 },
+        { key:'b3e4', name:'Patada de glúteo con banda', opts:['Glute_Kickback'], sets:3, reps:'12–15', rest:45, lb:0, inc:0 },
+        { key:'b3e5', name:'Puente de glúteos', opts:['Butt_Lift_Bridge','Single_Leg_Glute_Bridge'], sets:3, reps:'12–20', rest:60, lb:0, inc:0 },
         { key:'b3e6', name:'Gemelos', opts:['Calf_Raises_-_With_Bands'], sets:4, reps:'15–20', rest:45, lb:0, inc:0 },
       ],
     },
     {
-      id: 'b4', name: 'Día 4', focus: 'Hombros y Glúteos', emoji: '🍑', warm: 'pierna',
+      id: 'b4', name: 'Día 4', focus: 'Glúteos y Piernas', emoji: '🍑', warm: 'pierna',
       exercises: [
-        { key:'b4e1', name:'Elevaciones laterales con banda', opts:['Lateral_Raise_-_With_Bands'], sets:3, reps:'12–20', rest:60, lb:0, inc:0 },
-        { key:'b4e2', name:'Rotación externa con banda', opts:['External_Rotation_with_Band'], sets:3, reps:'15–20', rest:45, lb:0, inc:0 },
-        { key:'b4e3', name:'Abducción de cadera con banda', opts:['Band_Hip_Adductions'], sets:3, reps:'15–20', rest:45, lb:0, inc:0 },
-        { key:'b4e4', name:'Extensión de cadera con banda', opts:['Hip_Extension_with_Bands'], sets:3, reps:'12–15', rest:45, lb:0, inc:0 },
-        { key:'b4e5', name:'Elevación lateral de pierna', opts:['Side_Leg_Raises'], sets:3, reps:'15–20', rest:45, lb:0, inc:0 },
+        { key:'b4e1', name:'Sentadilla libre', opts:['Bodyweight_Squat','Squats_-_With_Bands'], sets:4, reps:'15–20', rest:60, lb:0, inc:0 },
+        { key:'b4e2', name:'Abducción de cadera con banda', opts:['Band_Hip_Adductions'], sets:3, reps:'15–20', rest:45, lb:0, inc:0 },
+        { key:'b4e3', name:'Extensión de cadera con banda', opts:['Hip_Extension_with_Bands'], sets:3, reps:'12–15', rest:45, lb:0, inc:0 },
+        { key:'b4e4', name:'Elevación lateral de pierna', opts:['Side_Leg_Raises'], sets:3, reps:'15–20', rest:45, lb:0, inc:0 },
+        { key:'b4e5', name:'Elevación de pierna atrás', opts:['Rear_Leg_Raises'], sets:3, reps:'15–20', rest:45, lb:0, inc:0 },
         { key:'b4e6', name:'Puente a una pierna', opts:['Single_Leg_Glute_Bridge','Butt_Lift_Bridge'], sets:3, reps:'12–15', rest:45, lb:0, inc:0 },
       ],
     },
