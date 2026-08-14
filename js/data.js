@@ -3,7 +3,7 @@
    Imágenes: free-exercise-db (2 frames -> se animan tipo GIF)
    ============================================================ */
 
-const APP_VERSION = 'v15 · fix flexiones dup';
+const APP_VERSION = 'v16 · rutina barco';
 const RAW = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
 function frames(id) { return [RAW + id + '/0.jpg', RAW + id + '/1.jpg']; }
 function yt(name) { return 'https://www.youtube.com/results?search_query=' + encodeURIComponent('como hacer ' + name + ' tecnica'); }
@@ -214,6 +214,41 @@ const EX = {
   'Reverse_Flyes': { es:'Aperturas invertidas con mancuernas', musc:'Hombro posterior', equip:'Mancuernas',
     setup:'Tronco inclinado al frente, mancuernas colgando, codos apenas flexionados.',
     tip:'Abrí los brazos hacia atrás apretando la parte de atrás del hombro.' },
+
+  // ========== BARCO / SOLO BANDAS + PESO CORPORAL ==========
+  'Incline_Push-Up': { es:'Flexiones inclinadas', musc:'Pecho superior', equip:'Peso corporal',
+    setup:'Manos sobre una superficie elevada (banco, borde), cuerpo en línea recta.',
+    tip:'Bajá el pecho a la superficie y empujá. Cuanto más alta la superficie, más fácil.' },
+  'Cross_Over_-_With_Bands': { es:'Cruce de pecho con banda', musc:'Pecho', equip:'Banda',
+    setup:'Fijá la banda detrás tuyo a la altura de los hombros, un extremo en cada mano.',
+    tip:'Cruzá las manos al frente y abajo apretando el pecho. Volvé controlando.' },
+  'Bench_Dips': { es:'Fondos de tríceps en banco', musc:'Tríceps', equip:'Peso corporal',
+    setup:'Manos en el borde de un banco/silla detrás tuyo, piernas al frente.',
+    tip:'Bajá flexionando los codos hacia atrás y empujá. Estirá las piernas para más dificultad.' },
+  'Speed_Band_Overhead_Triceps': { es:'Tríceps sobre la cabeza con banda', musc:'Tríceps', equip:'Banda',
+    setup:'Fijá la banda abajo/atrás; agarrá los extremos con las manos detrás de la cabeza.',
+    tip:'Estirá los codos hacia arriba, mantené los codos quietos y altos.' },
+  'Upright_Row_-_With_Bands': { es:'Remo vertical con banda', musc:'Espalda / Hombros', equip:'Banda',
+    setup:'Pisá la banda con ambos pies, agarrá los extremos al frente de los muslos.',
+    tip:'Tirá los codos hacia arriba llevando las manos al pecho. Trabaja espalda alta, hombros y bíceps.' },
+  'Back_Flyes_-_With_Bands': { es:'Aperturas posteriores con banda', musc:'Espalda alta / Hombro posterior', equip:'Banda',
+    setup:'Sostené la banda al frente con los brazos estirados a la altura del pecho.',
+    tip:'Abrí los brazos hacia atrás en cruz, juntando los omóplatos.' },
+  'Band_Good_Morning': { es:'Buenos días con banda', musc:'Femoral / Glúteos', equip:'Banda',
+    setup:'Pisá la banda y pasala por detrás del cuello/hombros. De pie, rodillas apenas flexionadas.',
+    tip:'Llevá la cola atrás inclinando el tronco con la espalda recta, y volvé apretando glúteos.' },
+  'Bodyweight_Squat': { es:'Sentadilla libre', musc:'Cuádriceps / Glúteos', equip:'Peso corporal',
+    setup:'De pie, pies a la anchura de hombros, brazos al frente para equilibrio.',
+    tip:'Bajá sacando la cola hasta muslos paralelos, subí con los talones. Hacela lenta para más intensidad.' },
+  'Step-up_with_Knee_Raise': { es:'Subida al escalón con rodilla', musc:'Piernas / Glúteos', equip:'Peso corporal',
+    setup:'Usá un escalón o banco firme. Subí con una pierna.',
+    tip:'Subí empujando con el talón y elevá la rodilla contraria arriba. Alterná.' },
+  'Shoulder_Press_-_With_Bands': { es:'Press de hombros con banda', musc:'Hombros', equip:'Banda',
+    setup:'Pisá la banda, agarrá los extremos a la altura de los hombros.',
+    tip:'Empujá hacia arriba estirando los brazos, bajá controlando.' },
+  'Band_Biceps_Curl': { es:'Curl de bíceps con banda', musc:'Bíceps', equip:'Banda',
+    setup:'Pisá la banda con ambos pies, agarrá los extremos con las palmas al frente.',
+    tip:'Subí flexionando los codos contra la banda, codos pegados al cuerpo. Bajá lento. (Ver demo en YouTube.)' },
 };
 
 /* Warmup (calentamiento) por día */
@@ -326,6 +361,57 @@ const ROUTINE_CASA = {
         { key:'c4e3', name:'Hombro posterior', opts:['Reverse_Flyes','Band_Pull_Apart'], sets:3, reps:'15–20', rest:60, lb:4, inc:2 },
         { key:'c4e4', name:'Curl de bíceps', opts:['Dumbbell_Bicep_Curl'], sets:3, reps:'10–12', rest:60, lb:5, inc:2 },
         { key:'c4e5', name:'Patada de tríceps', opts:['Tricep_Dumbbell_Kickback','Band_Skull_Crusher'], sets:3, reps:'12–15', rest:60, lb:5, inc:2 },
+      ],
+    },
+  ],
+};
+
+/* ============================================================
+   RUTINA BARCO · solo ligas (bandas cerradas) + peso corporal
+   ============================================================ */
+const ROUTINE_BARCO = {
+  version: 1,
+  title: 'Barco · 4 días',
+  days: [
+    {
+      id: 'b1', name: 'Día 1', focus: 'Pecho y Tríceps', emoji: '💪', warm: 'torso',
+      exercises: [
+        { key:'b1e1', name:'Flexiones', opts:['Pushups','Bench_Press_-_With_Bands'], sets:4, reps:'8–15', rest:75, lb:0, inc:0 },
+        { key:'b1e2', name:'Flexiones inclinadas', opts:['Incline_Push-Up'], sets:3, reps:'10–15', rest:60, lb:0, inc:0 },
+        { key:'b1e3', name:'Cruce de pecho con banda', opts:['Cross_Over_-_With_Bands'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+        { key:'b1e4', name:'Fondos de tríceps', opts:['Bench_Dips'], sets:3, reps:'8–15', rest:60, lb:0, inc:0 },
+        { key:'b1e5', name:'Tríceps con banda', opts:['Speed_Band_Overhead_Triceps','Band_Skull_Crusher'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+      ],
+    },
+    {
+      id: 'b2', name: 'Día 2', focus: 'Espalda y Bíceps', emoji: '🔙', warm: 'torso',
+      exercises: [
+        { key:'b2e1', name:'Remo vertical con banda', opts:['Upright_Row_-_With_Bands'], sets:4, reps:'12–15', rest:75, lb:0, inc:0 },
+        { key:'b2e2', name:'Pull apart con banda', opts:['Band_Pull_Apart'], sets:3, reps:'15–20', rest:60, lb:0, inc:0 },
+        { key:'b2e3', name:'Aperturas posteriores con banda', opts:['Back_Flyes_-_With_Bands'], sets:3, reps:'15–20', rest:60, lb:0, inc:0 },
+        { key:'b2e4', name:'Buenos días con banda', opts:['Band_Good_Morning'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+        { key:'b2e5', name:'Curl de bíceps con banda', opts:['Band_Biceps_Curl'], sets:4, reps:'12–15', rest:60, lb:0, inc:0 },
+      ],
+    },
+    {
+      id: 'b3', name: 'Día 3', focus: 'Piernas y Glúteos', emoji: '🦵', warm: 'pierna',
+      exercises: [
+        { key:'b3e1', name:'Sentadilla', opts:['Squats_-_With_Bands','Bodyweight_Squat'], sets:4, reps:'12–20', rest:75, lb:0, inc:0 },
+        { key:'b3e2', name:'Subida al escalón', opts:['Step-up_with_Knee_Raise'], sets:3, reps:'10–12', rest:60, lb:0, inc:0 },
+        { key:'b3e3', name:'Buenos días con banda', opts:['Band_Good_Morning'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+        { key:'b3e4', name:'Puente de glúteos', opts:['Butt_Lift_Bridge','Single_Leg_Glute_Bridge'], sets:3, reps:'12–20', rest:60, lb:0, inc:0 },
+        { key:'b3e5', name:'Extensión de cadera con banda', opts:['Hip_Extension_with_Bands'], sets:3, reps:'15–20', rest:45, lb:0, inc:0 },
+        { key:'b3e6', name:'Gemelos con banda', opts:['Calf_Raises_-_With_Bands'], sets:4, reps:'15–20', rest:45, lb:0, inc:0 },
+      ],
+    },
+    {
+      id: 'b4', name: 'Día 4', focus: 'Hombros y Brazos', emoji: '🏔️', warm: 'torso',
+      exercises: [
+        { key:'b4e1', name:'Press de hombros con banda', opts:['Shoulder_Press_-_With_Bands'], sets:4, reps:'10–15', rest:75, lb:0, inc:0 },
+        { key:'b4e2', name:'Elevaciones laterales con banda', opts:['Lateral_Raise_-_With_Bands'], sets:4, reps:'12–20', rest:60, lb:0, inc:0 },
+        { key:'b4e3', name:'Remo vertical con banda', opts:['Upright_Row_-_With_Bands'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
+        { key:'b4e4', name:'Fondos de tríceps', opts:['Bench_Dips'], sets:3, reps:'8–15', rest:60, lb:0, inc:0 },
+        { key:'b4e5', name:'Curl de bíceps con banda', opts:['Band_Biceps_Curl'], sets:3, reps:'12–15', rest:60, lb:0, inc:0 },
       ],
     },
   ],

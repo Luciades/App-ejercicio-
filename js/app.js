@@ -191,7 +191,11 @@ function currentRound() {
 }
 
 // Rutina activa según el modo elegido (gym o casa)
-function activeRoutine() { return state.routineMode === 'casa' ? ROUTINE_CASA : ROUTINE; }
+function activeRoutine() {
+  if (state.routineMode === 'casa') return ROUTINE_CASA;
+  if (state.routineMode === 'barco') return ROUTINE_BARCO;
+  return ROUTINE;
+}
 
 function renderTabs() {
   const tabs = $('#dayTabs');
